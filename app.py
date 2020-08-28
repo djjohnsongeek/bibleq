@@ -1,26 +1,26 @@
 import os
 
 from flask import Flask
-# from flaskext.mysql import MySQL
+import pymysql
+import json
+import Database
 
 app = Flask(__name__)
 
 # configure app
 app.config.from_object('config')
 
-# mysql = MySQL()
-# mysql.init_app(app)
-
-# use blueprints
 
 @app.route('/')
 def index():
-    print(app.config["DEBUG"])
-    return "index"
+    cursor = Database.get_db().cursor()
+    cursor.execute("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA='bibleq';")
+    result = cursor.fetchall()
+    cursor.close()
+    return json.dumps(result)
 
 @app.route('/hello')
 def hello():
-    # cursor = mysql.get_db().cursor()
     return 'Hello World'
 
 
