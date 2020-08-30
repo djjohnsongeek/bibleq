@@ -10,7 +10,7 @@ from flask import (
 )
 
 import werkzeug.security as security
-from bibleq.src.classes.DataFetcher import DataFetcher
+from classes.DataFetcher import DataFetcher
 
 blue_print = Blueprint('auth', __name__, url_prefix='/auth')
 

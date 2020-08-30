@@ -1,6 +1,5 @@
 class Question():
     
-
     def __init__(self, db, data):
         self.conn = db.conn
 
