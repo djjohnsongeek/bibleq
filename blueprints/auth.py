@@ -9,6 +9,8 @@ from flask import (
     g,
 )
 
+# user current_app insite a request to access app
+
 import werkzeug.security as security
 from classes.DataFetcher import DataFetcher
 
