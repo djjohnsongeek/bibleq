@@ -28,5 +28,8 @@ class Database:
             charset = app_config['MYSQL_CHARSET'],
             cursorclass = pymysql.cursors.DictCursor,
         )
+    
+    # init db
+    # populate db
 
 db = Database()
