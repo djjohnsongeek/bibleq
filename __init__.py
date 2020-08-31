@@ -1,12 +1,4 @@
-import os
-import sys
-
-from flask import Flask, url_for, g
-import pymysql
-import json
-
-from classes.Database import Database
-from classes.Question import Question
+from flask import Flask, g
 
 def create_app(test_config = None):
     app = Flask(__name__)
@@ -15,7 +7,8 @@ def create_app(test_config = None):
     app.config.from_object('config')
 
     # initialize database
-    db = Database(app.config)
+    from classes.Database import db
+    db.init(app.config)
 
     @app.before_request
     def before_each_request():
@@ -29,21 +22,11 @@ def create_app(test_config = None):
         
         return response
 
+    # register routes
     from blueprints import auth
     app.register_blueprint(auth.blue_print)
 
-    @app.route('/')
-    def index():
-        data = dict(
-            poster_id = 1,
-            writer_id = None,
-            answer_id = None,
-            body = "who is Jesus?",
-            unfit_flag_counft = 0,
-        )
-        question = Question(g.db, data)
-        question.create()
-
-        return "created q"
+    from blueprints import index
+    app.register_blueprint(index.blue_print)
 
     return app
