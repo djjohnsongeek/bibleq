@@ -6,6 +6,9 @@ def create_app(test_config = None):
     # configure app
     app.config.from_object('config')
 
+    if test_config is not None:
+        app.config.from_mapping(test_config)
+
     # initialize database
     from classes.Database import db
     db.init(app.config)
