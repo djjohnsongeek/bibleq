@@ -22,6 +22,6 @@ def register():
 def login():
    return "login"
 
-@blue_print.route('/logout', methods = ('GET'))
+@blue_print.route('/logout', methods = ('GET',))
 def logout():
     return "logout"
