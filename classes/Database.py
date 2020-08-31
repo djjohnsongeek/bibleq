@@ -3,17 +3,6 @@ import pymysql
 class Database:
     conn = None
 
-    def __init__(self, app_config):
-        self.db_params = dict(
-            host = app_config['MYSQL_HOST'],
-            user = app_config['MYSQL_USER'],
-            password = app_config['MYSQL_PASSWORD'],
-            port = app_config['MYSQL_PORT'],
-            db = app_config['MYSQL_DB'],
-            charset = app_config['MYSQL_CHARSET'],
-            cursorclass = pymysql.cursors.DictCursor,
-        )
-
     def connect(self):
         self.conn = pymysql.connect(
             host = self.db_params['host'],
@@ -28,3 +17,16 @@ class Database:
     def close(self):
         self.conn.close()
         self.conn = None
+
+    def init(self, app_config):
+        self.db_params = dict(
+            host = app_config['MYSQL_HOST'],
+            user = app_config['MYSQL_USER'],
+            password = app_config['MYSQL_PASSWORD'],
+            port = app_config['MYSQL_PORT'],
+            db = app_config['MYSQL_DB'],
+            charset = app_config['MYSQL_CHARSET'],
+            cursorclass = pymysql.cursors.DictCursor,
+        )
+
+db = Database()
