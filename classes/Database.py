@@ -29,6 +29,7 @@ class Database:
             cursorclass = pymysql.cursors.DictCursor,
         )
     
+    # parse sql
     # init db
     # populate db
 
