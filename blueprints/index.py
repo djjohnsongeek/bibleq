@@ -17,14 +17,13 @@ blue_print = Blueprint('index', __name__)
     
 @blue_print.route('/', methods = ('GET',))
 def index():
-    data = dict(
-        poster_id = 1,
-        writer_id = None,
-        answer_id = None,
-        body = "who is Jesus?",
-        unfit_flag_counft = 0,
-    )
-    question = Question(g.db, data)
-    question.create()
+    db = g.db
+    path = r'C:\Users\Johnson\Projects\flask-app\bibleq\models\bibleq_schema.sql'
 
-    return "created q"
+    result = db.execute_sql_file(path)
+    if result:
+        message = 'success'
+    else:
+        message = 'failure'
+    
+    return message
