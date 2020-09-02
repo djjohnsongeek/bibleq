@@ -9,7 +9,6 @@ class Database:
 
     def __init__(self):
         self.conn = None
-        self.testing = False
         self.databases = {
             'dev': 'bibleq',
             'test': 'bibleq_test'
@@ -19,13 +18,13 @@ class Database:
     def connect(self):
         if self.conn is None:
             self.conn = pymysql.connect(
-                host = self.db_params['host'],
-                user = self.db_params['user'],
-                password = self.db_params['password'],
-                port = self.db_params['port'],
-                db = self.db_params['db'],
-                charset = self.db_params['charset'],
-                cursorclass = self.db_params['cursorclass'],
+                host = self.params['host'],
+                user = self.params['user'],
+                password = self.params['password'],
+                port = self.params['port'],
+                db = self.params['db'],
+                charset = self.params['charset'],
+                cursorclass = self.params['cursorclass'],
             )
 
     def close(self):
@@ -33,8 +32,8 @@ class Database:
             self.conn.close()
         self.conn = None
 
-    def init(self, app_config):
-        self.db_params = dict(
+    def init(self, app_config: dict):
+        self.params = dict(
             host = app_config['MYSQL_HOST'],
             user = app_config['MYSQL_USER'],
             password = app_config['MYSQL_PASSWORD'],
@@ -46,20 +45,19 @@ class Database:
         self.schema_path = app_config['SCHEMA_SQL_PATH']
 
         if app_config['TESTING']:
-            self.testing = True
             self.set_db('test')
         else:
-            self.testing = False
             self.set_db('dev')
 
-    def set_db(self, db_name):
+    def set_db(self, db_name: str):
         if self.conn is None:
             self.current_db = self.databases[db_name]
+            self.params['db'] = self.current_db
         else:
             raise DatabaseTransitionError
 
 
-    def execute_sql_file(self, file_path):
+    def execute_sql_file(self, file_path: str) -> bool:
         statements = self.parse_sql_file(file_path)
         self.connect()
 
@@ -78,7 +76,7 @@ class Database:
 
         return result
 
-    def parse_sql_file(self, file_path):
+    def parse_sql_file(self, file_path: str) -> list:
         DELIMITER = ';'
         NEW_LINE = '\n'
         COMMENT_PREFIX = ('--', '/*')
@@ -99,17 +97,5 @@ class Database:
                     statement = ''
 
         return statements
-
-    def init_test_db(self):
-        self.connect()
-
-        cur = self.conn.cursor()
-        cur.execute('CREATE DATABASE bibleq_test;')
-
-        self.conn.commit()
-        self.conn.close()
-        self.db_params['db'] = 'bibleq_test'
-        self.execute_sql_file(self.schema_path)
-    # populate db
 
 db = Database()
