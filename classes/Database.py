@@ -25,6 +25,7 @@ class Database:
                 db = self.params['db'],
                 charset = self.params['charset'],
                 cursorclass = self.params['cursorclass'],
+                autocommit = False,
             )
 
     def close(self):
@@ -63,17 +64,14 @@ class Database:
 
         cur = self.conn.cursor()
 
-        try:
-            for statement in statements:
+        result = True
+        for statement in statements:
+            try:
                 cur.execute(statement)
-        except:
-            result = False
-        else:
-            result = True
-        finally:
-            if result: self.conn.commit()
-            cur.close()
-
+            except pymysql.err.OperationalError:
+                return False
+        
+        cur.close()
         return result
 
     def parse_sql_file(self, file_path: str) -> list:
@@ -98,4 +96,26 @@ class Database:
 
         return statements
 
+    def fetch_all_rows(self, table_name: str) -> list:
+        ''' Ensure table_name is validated first '''
+        self.connect()
+
+        cur = self.conn.cursor()
+        cur.execute(
+            f'SELECT * FROM {table_name};'
+        )
+        result = cur.fetchall()
+
+        return result
+
+    def trucate_table(self, table_name: str) -> list:
+        ''' Ensure table_name is validated first '''
+        self.connect()
+
+        cur = self.conn.cursor()
+        cur.execute(
+            f'TRUNCATE {table_name};'
+        )
+        self.conn.commit()
+        cur.close()
 db = Database()
