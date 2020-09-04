@@ -12,7 +12,7 @@ class DataFetcher():
         cur.close()
 
         return results
-        
+
     def get_unanswered_questions(self):
         cur = self.conn.cursor()
         cur.execute(

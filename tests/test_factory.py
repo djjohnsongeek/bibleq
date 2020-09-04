@@ -1,6 +1,7 @@
 import unittest
 from bibleq import create_app
 
+
 class TestFactory(unittest.TestCase):
 
     def test_config_loading(self):

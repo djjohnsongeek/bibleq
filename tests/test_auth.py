@@ -1,5 +1,6 @@
 import unittest
 
+
 class TestAuthRoute(unittest.TestCase):
 
     def setUp(self):

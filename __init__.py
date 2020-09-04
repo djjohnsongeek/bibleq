@@ -1,6 +1,7 @@
 from flask import Flask, g
 
-def create_app(test_config = None):
+
+def create_app(test_config=None):
     app = Flask(__name__)
 
     # configure app
@@ -22,7 +23,7 @@ def create_app(test_config = None):
     def after_each_request(response):
         g.db.close()
         g.pop('db')
-        
+
         return response
 
     # register routes

@@ -1,9 +1,12 @@
 import pymysql
 
+
 class DatabaseTransitionError(Exception):
     """ Raised when current db is switched while a connection is active """
     def __init__(self):
-        self.message = "Database cannot be switched while a connection is open."
+        self.message = "Database cannot be switched " \
+                       "while a connection is open."
+
 
 class Database:
 
@@ -18,14 +21,14 @@ class Database:
     def connect(self):
         if self.conn is None:
             self.conn = pymysql.connect(
-                host = self.params['host'],
-                user = self.params['user'],
-                password = self.params['password'],
-                port = self.params['port'],
-                db = self.params['db'],
-                charset = self.params['charset'],
-                cursorclass = self.params['cursorclass'],
-                autocommit = False,
+                host=self.params['host'],
+                user=self.params['user'],
+                password=self.params['password'],
+                port=self.params['port'],
+                db=self.params['db'],
+                charset=self.params['charset'],
+                cursorclass=self.params['cursorclass'],
+                autocommit=False,
             )
 
     def close(self):
@@ -35,13 +38,13 @@ class Database:
 
     def init(self, app_config: dict):
         self.params = dict(
-            host = app_config['MYSQL_HOST'],
-            user = app_config['MYSQL_USER'],
-            password = app_config['MYSQL_PASSWORD'],
-            port = app_config['MYSQL_PORT'],
-            db = app_config['MYSQL_DB'],
-            charset = app_config['MYSQL_CHARSET'],
-            cursorclass = pymysql.cursors.DictCursor,
+            host=app_config['MYSQL_HOST'],
+            user=app_config['MYSQL_USER'],
+            password=app_config['MYSQL_PASSWORD'],
+            port=app_config['MYSQL_PORT'],
+            db=app_config['MYSQL_DB'],
+            charset=app_config['MYSQL_CHARSET'],
+            cursorclass=pymysql.cursors.DictCursor,
         )
         self.schema_path = app_config['SCHEMA_SQL_PATH']
 
@@ -56,7 +59,6 @@ class Database:
             self.params['db'] = self.current_db
         else:
             raise DatabaseTransitionError
-
 
     def execute_sql_file(self, file_path: str) -> bool:
         statements = self.parse_sql_file(file_path)
@@ -83,7 +85,6 @@ class Database:
                 return False
 
         return True
-
 
     def parse_sql_file(self, file_path: str) -> list:
         DELIMITER = ';'
@@ -129,5 +130,6 @@ class Database:
         )
         self.conn.commit()
         cur.close()
-        
+
+
 db = Database()
