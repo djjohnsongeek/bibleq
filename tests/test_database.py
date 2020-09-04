@@ -157,14 +157,3 @@ class DataBaseTests(unittest.TestCase):
         # verify nothing was commited
         results = self.db.fetch_all_rows('account_types')
         self.assertFalse(results)
-
-    def test_autocommuit(self):
-        cur = self.db.conn.cursor()
-        cur.execute('INSERT INTO account_types (level_id, name, description) VALUES (1, "Nerd", "auto");')
-        
-    # test execute slq file
-    # test set_db
-    # test init
-    # test fetch_all_rows
-    # test truncate table
-    
