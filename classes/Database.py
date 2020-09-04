@@ -61,18 +61,29 @@ class Database:
     def execute_sql_file(self, file_path: str) -> bool:
         statements = self.parse_sql_file(file_path)
         self.connect()
-
         cur = self.conn.cursor()
 
-        result = True
+        result = self.execute_statements(cur, statements)
+
+        if result:
+            self.conn.commit()
+        else:
+            self.conn.rollback()
+
+        cur.close()
+
+        return result
+
+    def execute_statements(self, cur, statements):
+
         for statement in statements:
             try:
                 cur.execute(statement)
             except pymysql.err.OperationalError:
                 return False
-        
-        cur.close()
-        return result
+
+        return True
+
 
     def parse_sql_file(self, file_path: str) -> list:
         DELIMITER = ';'
@@ -118,4 +129,5 @@ class Database:
         )
         self.conn.commit()
         cur.close()
+        
 db = Database()
