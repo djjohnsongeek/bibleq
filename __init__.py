@@ -33,7 +33,7 @@ def create_app(test_config=None):
     from blueprints import index
     app.register_blueprint(index.blue_print)
 
-    from blueprints import question
-    app.register_blueprint(question.blue_print)
+    from blueprints import questions
+    app.register_blueprint(questions.blue_print)
 
     return app
