@@ -8,7 +8,9 @@
     <form method="POST" action="{{ url_for('auth.register') }}">
         <input type="text" name="first_name" placeholder="First Name"><br/>
         <input type="text" name="last_name" placeholder="Last Name"><br/>
-        <input type="email" placeholder="Email Address"><br/>
+        <input type="email" name="email" placeholder="Email Address"><br/>
+        <input type="password" name="password" placeholder="Your Password"><br/>
+        <input type="password" name="confirm_pw" placeholder="Confirm Password"><br/>
         <button type="submit">Create Account</button>
     </form>
 </div>
