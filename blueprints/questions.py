@@ -11,9 +11,12 @@ from flask import (
 
 from classes.Question import Question
 
-blue_print = Blueprint('question', __name__, url_prefix='/question')
+blue_print = Blueprint('questions', __name__, url_prefix='/questions')
 
 
-@blue_print.route('/create', methods=('GET',))
+@blue_print.route('/create', methods=('GET', 'POST'))
 def create():
+    if request.method == "POST":
+        flash('Your Question has been created.', 'info')
+
     return render_template('questions/create_question.html')
