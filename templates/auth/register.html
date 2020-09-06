@@ -1,0 +1,15 @@
+{% extends 'layout.html' %}
+
+{% block title %} Create Account {% endblock %}
+{% block heading %} Create Account {% endblock %}
+
+{% block main %}
+<div>
+    <form method="POST" action="{{ url_for('auth.register') }}">
+        <input type="text" name="first_name" placeholder="First Name"><br/>
+        <input type="text" name="last_name" placeholder="Last Name"><br/>
+        <input type="email" placeholder="Email Address"><br/>
+        <button type="submit">Create Account</button>
+    </form>
+</div>
+{% endblock %}
