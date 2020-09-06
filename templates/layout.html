@@ -2,6 +2,14 @@
 <html>
     <head>
         <title>BibleQ - {% block title %}{% endblock %}</title>
+        <style>
+            .info {
+                color: green;
+            }
+            .error {
+                color: red;
+            }
+        </style>
     </head>
     <body>
         <header>
@@ -13,6 +21,11 @@
             <h1>{% block heading %}{% endblock %}</h1>
         </header>
         <main>
+            <section>
+                {% for message in get_flashed_messages(with_categories=True) %}
+                <div class="{{ message[0] }}">{{ message[1] }}</div>
+                {% endfor %}
+            </section>
             {% block main %}{% endblock %}
         </main>
         <footer>
