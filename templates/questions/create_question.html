@@ -10,7 +10,7 @@ Ask a Question
 
 {% block main %}
 
-<form>
+<form method="POST" action="{{ url_for('questions.create') }}">
     <lable for="#question">Write Your Question Below</lable><br/>
     <textarea id="question"></textarea><br/>
     <button>Submit Question</button>
