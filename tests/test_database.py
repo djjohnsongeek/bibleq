@@ -9,10 +9,10 @@ from classes.Database import DatabaseTransitionError
 
 
 class DataBaseTests(unittest.TestCase):
-    db = db
-
+    
     @classmethod
     def setUpClass(cls):
+        cls.db = db
         cls.app = create_app({
             'TESTING': True,
             'MYSQL_DB': 'bibleq_test',
@@ -22,10 +22,6 @@ class DataBaseTests(unittest.TestCase):
 
         cls.db.init(cls.app.config)
         cls.db.execute_sql_file(cls.db.schema_path)
-
-    @classmethod
-    def tearDownClass(cls):
-        pass
 
     def setUp(self):
         with self.app.app_context():
@@ -169,3 +165,18 @@ class DataBaseTests(unittest.TestCase):
         # verify nothing was commited
         results = self.db.fetch_all_rows('account_types')
         self.assertFalse(results)
+
+    def test_get_last_insert_id(self):
+        # insert a row
+        self.db.execute_statements(
+            self.db.conn.cursor(),
+            [
+                'INSERT INTO error_logs (message, level) ' +
+                'VALUES ("error message", 1);',
+            ]
+        )
+
+        # validate row id value
+        last_inserted_id = self.db.get_last_insert_id()
+        self.assertEqual(last_inserted_id, 1)
+
