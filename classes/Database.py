@@ -108,28 +108,65 @@ class Database:
 
         return statements
 
-    def fetch_all_rows(self, table_name: str) -> list:
-        ''' Ensure table_name is validated first '''
+    def fetch_all_rows(self, table: str) -> list:
+        ''' Ensure table is validated first '''
         self.connect()
 
         cur = self.conn.cursor()
         cur.execute(
-            f'SELECT * FROM {table_name};'
+            f'SELECT * FROM {table};'
         )
         result = cur.fetchall()
 
         return result
 
-    def trucate_table(self, table_name: str) -> list:
-        ''' Ensure table_name is validated first '''
+    def trucate_table(self, table: str) -> list:
+        ''' Ensure table is validated first '''
         self.connect()
 
         cur = self.conn.cursor()
         cur.execute(
-            f'TRUNCATE {table_name};'
+            f'TRUNCATE {table};'
         )
         self.conn.commit()
         cur.close()
 
+    def get_last_insert_id(self):
+        self.connect()
+        cur = self.conn.cursor()
+
+        cur.execute(
+            'SELECT LAST_INSERT_ID();'
+        )
+        result = cur.fetchone()
+        cur.close()
+
+        return result['LAST_INSERT_ID()']
+
+    # TODO write tests
+    def update_row(self, table, row, **fields):
+        ''' Ensure table and fields are validated '''
+
+        # seperate sql generation off
+        sql = f'UPDATE {table} '
+
+        count = 1
+        for field in fields:
+            if count == 1:
+                sql = sql + f'SET {field} = %s, '
+            else:
+                sql = sql + f'{field} = %s, '
+    
+            count = count + 1
+        
+        sql = sql.rstrip(', ')
+        sql = sql + f' WHERE {row["field_name"]} = %s;'
+
+        sql_values = list(fields.values())
+        sql_values.append(row['id'])
+
+        cur = self.conn.cursor()
+        cur.execute(sql, sql_values)
+        cur.close()
 
 db = Database()
