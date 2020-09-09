@@ -12,9 +12,9 @@ class Question():
     def create(self):
         cur = self.db.conn.cursor()
         sql = ('INSERT INTO questions ('
-                    'original_poster_id, writer_id,'
-                    'answer_id, body, unfit_flag_count)'
-              'VALUES (%s, %s, %s, %s, %s)')
+               'original_poster_id, writer_id,'
+               'answer_id, body, unfit_flag_count)'
+               'VALUES (%s, %s, %s, %s, %s)')
 
         cur.execute(
             sql,
