@@ -156,9 +156,9 @@ class Database:
                 sql = sql + f'SET {field} = %s, '
             else:
                 sql = sql + f'{field} = %s, '
-    
+
             count = count + 1
-        
+
         sql = sql.rstrip(', ')
         sql = sql + f' WHERE {row["field_name"]} = %s;'
 
@@ -168,5 +168,6 @@ class Database:
         cur = self.conn.cursor()
         cur.execute(sql, sql_values)
         cur.close()
+
 
 db = Database()
