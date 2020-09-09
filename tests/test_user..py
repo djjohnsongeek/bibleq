@@ -32,4 +32,10 @@ class TestUserClass(unittest.TestCase):
 # test user update
 # test user delete
 # test user get_all
+# test parse user info
+# test val name
+# test val email
+# test val int
+# test validate
+
 
