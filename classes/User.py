@@ -1,4 +1,9 @@
+import re
+
 from flask import current_app
+
+from classes.Util import Util
+
 
 class User():
 
@@ -18,10 +23,10 @@ class User():
     def create(self):
         cur = self.db.conn.cursor()
         sql = ('INSERT INTO users'
-                    '(first_name, last_name, email, '
-                    'password, question_count, '
-                    'answer_count, account_level) '
-                'VALUES (%s, %s, %s, %s, %s, %s, %s);')
+               '(first_name, last_name, email, '
+               'password, question_count, '
+               'answer_count, account_level) '
+               'VALUES (%s, %s, %s, %s, %s, %s, %s);')
 
         cur.execute(sql, (
             self.first_name,
@@ -44,15 +49,15 @@ class User():
             {'user_id': self.id},
             fields
         )
-        
+
         pass
 
     @staticmethod
     def parse_user_info(form_data):
 
         user_info = {
-            'first_name' : form_data.get('first_name'),
-            'last_name' : form_data.get('last_name'),
+            'first_name': form_data.get('first_name'),
+            'last_name': form_data.get('last_name'),
             'email': form_data.get('email'),
             'password': form_data.get('password'),
             'confirm_pw': form_data.get('confirm_pw'),
@@ -63,13 +68,20 @@ class User():
 
         return user_info
 
-
     @staticmethod
     def delete(self, user):
         cur = self.db.conn.cursor()
         sql = 'DELETE FROM users WHERE user_id = %s;'
-        cur.execute(sql, user.id)
+        result = cur.execute(sql, user.id)
+
+        if result == 1:
+            self.db.conn.commit()
+            result = True
+        else:
+            result = False
+
         cur.close()
+        return result
 
     @staticmethod
     def get_all(db):
@@ -89,31 +101,99 @@ class User():
     def validate(user_info):
         errors = []
 
-        errors = errors + User.validate_name(user_info['first_name'])
-        errors = errors + User.validate_name(user_info['last_name'])
-        errors = errors + User.validate_email(user_info['email'])
-        errors = errors + User.validate_password(user_info['password'], user_info['confirm_pw'])
-        errors = errors + User.validate_integer(user_info['question_count'])
-        errors = errors + User.validate_integer(user_info['answer_count'])
-        errors = errors + User.validate_integer(user_info['account_level'], start=1, end=3)
+        errors.extend(
+            User.validate_name(user_info['first_name']))
+        errors.extend(
+            User.validate_name(user_info['last_name']))
+        errors.extend(
+            User.validate_email(user_info['email']))
+        errors.extend(
+            User.validate_password(
+                user_info['password'],
+                user_info['confirm_pw'])
+            )
+        errors.extend(
+            User.validate_integer(user_info['question_count']))
+        errors.extend(
+            User.validate_integer(user_info['answer_count']))
+        errors.extend(
+            User.validate_integer(
+                user_info['account_level'],
+                start=1,
+                end=3)
+            )
 
         return errors
 
     @staticmethod
     def validate_name(name):
-        pass
+        errors = []
+
+        if not name:
+            errors.append('Name field cannot be blank')
+
+        if len(name) > 64:
+            errors.append(
+                'Name fields must be less then 64 characters'
+            )
+        #
+        return errors
 
     @staticmethod
     def validate_email(email):
-        pass
+        errors = []
+        # regex from https://emailregex.com/
+        # basic validation, not full-proof
+        regex = re.compile(r'(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]'
+                           r'+\.[a-zA-Z0-9-.]+$)')
+
+        if not regex.match(email):
+            errors.append('Email is Invalid')
+
+        if len(email) > 64:
+            errors.append('Email address is too long')
+
+        return errors
 
     @staticmethod
     def validate_password(password, confirm_pw):
-        pass
+        errors = []
+        app = current_app
+
+        if password != confirm_pw:
+            errors.append('Passwords do not match!')
+
+        if (len(password) < app.config['PW_LENGTH'] or
+            len(password) > app.config['PW_LIMIT']):
+            errors.append('Password cannot be shorter then '
+                          '10 characters or longer then 128.')
+
+        if (not Util.contains_upper(password)
+           or not Util.contains_lower(password)):
+
+            errors.append('Password must contain an upper '
+                          'and lowercase letter.')
+
+        if not Util.contains_num(password):
+            errors.append('Password must contain at least one number.')
+
+        return errors
 
     @staticmethod
     def validate_integer(integer, start=None, end=None):
-        pass
+        errors = []
 
+        try:
+            integer = int(integer)
+        except TypeError:
+            errors.append('An Integer was expected')
+            return errors
 
+        if start and integer < start:
+            errors.append(f'Integer value should be at '
+                          f' least equal to {start}.')
 
+        if end and integer > end:
+            errors.append(f'Integer value should be greater then {end}.')
+
+        return errors
