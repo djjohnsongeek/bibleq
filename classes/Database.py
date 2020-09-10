@@ -180,4 +180,5 @@ class Database:
 
         return result
 
+
 db = Database()

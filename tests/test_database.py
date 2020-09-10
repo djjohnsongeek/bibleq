@@ -9,7 +9,7 @@ from classes.Database import DatabaseTransitionError
 
 
 class DataBaseTests(unittest.TestCase):
-    
+
     @classmethod
     def setUpClass(cls):
         cls.db = db
@@ -179,4 +179,3 @@ class DataBaseTests(unittest.TestCase):
         # validate row id value
         last_inserted_id = self.db.get_last_insert_id()
         self.assertEqual(last_inserted_id, 1)
-

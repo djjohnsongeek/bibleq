@@ -135,11 +135,11 @@ class User():
         errors = []
 
         if not name:
-            errors.append('Name field cannot be blank')
+            errors.append('Name field cannot be blank.')
 
         if len(name) > 64:
             errors.append(
-                'Name fields must be less then 64 characters'
+                'Name fields must be less then 64 characters.'
             )
 
         return errors
@@ -153,10 +153,10 @@ class User():
                            r'+\.[a-zA-Z0-9-.]+$)')
 
         if not regex.match(email):
-            errors.append('Email is Invalid')
+            errors.append('Email is Invalid.')
 
         if len(email) > 64:
-            errors.append('Email address is too long')
+            errors.append('Email address is too long.')
 
         return errors
 
@@ -169,7 +169,7 @@ class User():
             errors.append('Passwords do not match!')
 
         if (len(password) < app.config['PW_LENGTH'] or
-            len(password) > app.config['PW_LIMIT']):
+                len(password) > app.config['PW_LIMIT']):
 
             errors.append(f'Password cannot be shorter then '
                           f'{app.config["PW_LENGTH"]} characters '
@@ -204,5 +204,4 @@ class User():
             errors.append(f'Integer value should be less then {end}.')
 
         return errors
-
     # add get user?
