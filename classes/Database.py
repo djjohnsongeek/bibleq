@@ -144,7 +144,7 @@ class Database:
         return result['LAST_INSERT_ID()']
 
     # TODO write tests
-    def update_row(self, table, row, **fields):
+    def update_row(self, table, id_col, **fields):
         ''' Ensure table and fields are validated '''
 
         # seperate sql generation off
@@ -160,14 +160,24 @@ class Database:
             count = count + 1
 
         sql = sql.rstrip(', ')
-        sql = sql + f' WHERE {row["field_name"]} = %s;'
+        sql = sql + f' WHERE {id_col["field_name"]} = %s;'
 
         sql_values = list(fields.values())
-        sql_values.append(row['id'])
+        sql_values.append(id_col['id'])
 
         cur = self.conn.cursor()
         cur.execute(sql, sql_values)
         cur.close()
 
+    def get_row(self, table, id_col, row_id):
+        sql = 'SELECT * FROM %s WHERE %s = $s;'
+
+        cur = self.conn.cursor()
+        cur.execute(sql, (table, id_col, row_id))
+
+        result = cur.fetchone()
+        cur.close()
+
+        return result
 
 db = Database()
