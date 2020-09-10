@@ -68,11 +68,10 @@ class User():
 
         return user_info
 
-    @staticmethod
-    def delete(self, user):
+    def delete(self):
         cur = self.db.conn.cursor()
         sql = 'DELETE FROM users WHERE user_id = %s;'
-        result = cur.execute(sql, user.id)
+        result = cur.execute(sql, self.id)
 
         if result == 1:
             self.db.conn.commit()
@@ -103,19 +102,25 @@ class User():
 
         errors.extend(
             User.validate_name(user_info['first_name']))
+
         errors.extend(
             User.validate_name(user_info['last_name']))
+
         errors.extend(
             User.validate_email(user_info['email']))
+
         errors.extend(
             User.validate_password(
                 user_info['password'],
                 user_info['confirm_pw'])
             )
+
         errors.extend(
             User.validate_integer(user_info['question_count']))
+
         errors.extend(
             User.validate_integer(user_info['answer_count']))
+
         errors.extend(
             User.validate_integer(
                 user_info['account_level'],
@@ -136,7 +141,7 @@ class User():
             errors.append(
                 'Name fields must be less then 64 characters'
             )
-        #
+
         return errors
 
     @staticmethod
@@ -165,8 +170,10 @@ class User():
 
         if (len(password) < app.config['PW_LENGTH'] or
             len(password) > app.config['PW_LIMIT']):
-            errors.append('Password cannot be shorter then '
-                          '10 characters or longer then 128.')
+
+            errors.append(f'Password cannot be shorter then '
+                          f'{app.config["PW_LENGTH"]} characters '
+                          f'or longer then {app.config["PW_LIMIT"]}.')
 
         if (not Util.contains_upper(password)
            or not Util.contains_lower(password)):
@@ -186,7 +193,7 @@ class User():
         try:
             integer = int(integer)
         except TypeError:
-            errors.append('An Integer was expected')
+            errors.append('An Integer was expected.')
             return errors
 
         if start and integer < start:
@@ -194,6 +201,8 @@ class User():
                           f' least equal to {start}.')
 
         if end and integer > end:
-            errors.append(f'Integer value should be greater then {end}.')
+            errors.append(f'Integer value should be less then {end}.')
 
         return errors
+
+    # add get user?
