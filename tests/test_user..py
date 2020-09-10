@@ -25,6 +25,7 @@ class TestUserClass(unittest.TestCase):
             'last_name': 'Last',
             'email': 'email@gmail.com',
             'password': 'aGoodPassw0rd',
+            'confirm_pw': 'aGoodPassw0rd',
             'question_count': 0,
             'answer_count': 0,
             'account_level': 1,
@@ -35,19 +36,21 @@ class TestUserClass(unittest.TestCase):
             'last_name': 'Last2',
             'email': 'email@gmail.com2',
             'password': 'aGoodPassw0rd2',
+            'confirm_pw': 'aGoodPassw0rd2',
             'question_count': 0,
             'answer_count': 0,
             'account_level': 1,
         }
 
-        self.user_info2 = {
+        self.user_info3 = {
             'first_name': 'First3',
-            'last_name': 'Last3',
-            'email': 'email@gmail.com3',
+            'last_name': '',
+            'email': 'email.com',
             'password': 'aGoodPassw0rd3',
+            'confirm_pw': 'asdkfjadasdfasdf',
             'question_count': 0,
             'answer_count': 0,
-            'account_level': 1,
+            'account_level': 4,
         }
 
     def tearDown(self):
@@ -146,13 +149,13 @@ class TestUserClass(unittest.TestCase):
         errors = User.validate_name('')
         self.assertListEqual(
             errors,
-            ['Name field cannot be blank'],
+            ['Name field cannot be blank.'],
         )
 
         errors = User.validate_name('D' * 65)
         self.assertListEqual(
             errors,
-            ['Name fields must be less then 64 characters']
+            ['Name fields must be less then 64 characters.']
         )
 
         errors = User.validate_name('FirstName')
@@ -166,7 +169,7 @@ class TestUserClass(unittest.TestCase):
         errors = User.validate_email('email')
         self.assertListEqual(
             errors,
-            ['Email is Invalid']
+            ['Email is Invalid.']
         )
 
         errors = User.validate_email('email@gmail.com')
@@ -178,13 +181,13 @@ class TestUserClass(unittest.TestCase):
         errors = User.validate_email('e' * 65 + '@gmail.com')
         self.assertListEqual(
             errors,
-            ['Email address is too long']
+            ['Email address is too long.']
         )
 
         errors = User.validate_email('e' * 65)
         self.assertListEqual(
             errors,
-            ['Email is Invalid', 'Email address is too long']
+            ['Email is Invalid.', 'Email address is too long.']
         )
 
     def test_validate_integer(self):
@@ -225,13 +228,99 @@ class TestUserClass(unittest.TestCase):
         )
 
     def test_validate_password(self):
-        pass
+        errors = User.validate_password(
+            'aGoodPassW0rd',
+            'aGoodPassW0rd'
+        )
+        self.assertListEqual(
+            errors, []
+        )
+
+        errors = User.validate_password(
+            'aGood',
+            'aGoodPassW0rd'
+        )
+        self.assertListEqual(
+            errors,
+            ['Passwords do not match!']
+        )
+
+        errors = User.validate_password(
+            'aGood11',
+            'aGood11'
+        )
+        self.assertListEqual(
+            errors,
+            ['Passwords cannot be shorter then ' +
+             '10 characters or longer then 164.']
+        )
+
+        errors = User.validate_password(
+            'aGood11' + 'G' * 160,
+            'aGood11' + 'G' * 160
+        )
+        self.assertListEqual(
+            errors,
+            ['Passwords cannot be shorter then ' +
+             '10 characters or longer then 164.']
+        )
+
+        errors = User.validate_password(
+            'abadpasswordwithn0caps',
+            'abadpasswordwithn0caps'
+        )
+        self.assertListEqual(
+            errors,
+            ['Password must contain an upper and lowercase letter.']
+        )
+
+        errors = User.validate_password(
+            'ABADPASSWORDWITH0LOWERS',
+            'ABADPASSWORDWITH0LOWERS'
+        )
+        self.assertListEqual(
+            errors,
+            ['Password must contain an upper and lowercase letter.']
+        )
+
+        errors = User.validate_password(
+            'aBadPassWordWithNoNums',
+            'aBadPassWordWithNoNums'
+        )
+        self.assertListEqual(
+            errors,
+            ['Password must contain at least one number.']
+        )
+
+        errors = User.validate_password(
+            'password',
+            'pword'
+        )
+        self.assertListEqual(
+            errors,
+            [
+                'Passwords do not match!',
+                'Passwords cannot be shorter then ' +
+                '10 characters or longer then 164.',
+                'Password must contain an upper and lowercase letter.',
+                'Password must contain at least one number.'
+            ]
+        )
 
     def test_user_validate(self):
-        pass
-# test val name
-# test val email
-# test val int
-# test validate
+        errors = User.validate(self.user_info1)
 
+        self.assertListEqual(
+            errors, []
+        )
 
+        errors = User.validate(self.user_info3)
+        self.assertListEqual(
+            errors,
+            [
+                'Name field cannot be blank.',
+                'Email is Invalid.',
+                'Passwords do not match!',
+                'Integer value should be less then 3.',
+            ]
+        )
