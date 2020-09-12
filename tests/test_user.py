@@ -6,6 +6,7 @@ from classes.User import User
 
 
 class TestUserClass(unittest.TestCase):
+    
     @classmethod
     def setUpClass(cls):
         cls.db = db
@@ -18,6 +19,12 @@ class TestUserClass(unittest.TestCase):
 
         cls.db.init(cls.app.config)
         cls.db.execute_sql_file(cls.db.schema_path)
+
+    def tearDown(self):
+        self.db.trucate_table('users')
+
+        with self.app.app_context():
+            self.db.close()
 
     def setUp(self):
         self.user_info1 = {
@@ -53,8 +60,8 @@ class TestUserClass(unittest.TestCase):
             'account_level': 4,
         }
 
-    def tearDown(self):
-        self.db.trucate_table('users')
+        with self.app.app_context():
+            self.db.connect()
 
     def test_user_init(self):
         user = User(self.db, self.user_info1)
@@ -102,48 +109,51 @@ class TestUserClass(unittest.TestCase):
         self.assertIs(self.db, user.db)
 
     def test_user_CRUD(self):
-        user = User(self.db, self.user_info1)
+        with self.app.app_context():
+            user = User(self.db, self.user_info1)
 
-        # create
-        user.create()
+            # create
+            user.create()
 
-        self.assertEqual(1, user.id)
-        result = self.db.get_row('users', 'user_id', user.id)
+            self.assertEqual(1, user.id)
+            result = self.db.get_row('users', 'user_id', user.id)
 
-        self.assertEqual(result['user_id'], user.id)
-        self.assertEqual(result['first_name'], user.first_name)
-        self.assertEqual(result['last_name'], user.last_name)
+            self.assertEqual(result['user_id'], user.id)
+            self.assertEqual(result['first_name'], user.first_name)
+            self.assertEqual(result['last_name'], user.last_name)
 
-        # update
-        user.update(first_name='new', last_name='new')
+            # update
+            user.update(first_name='new', last_name='new')
 
-        self.assertEqual(user.first_name, 'new')
-        self.assertEqual(user.last_name, 'new')
+            self.assertEqual(user.first_name, 'new')
+            self.assertEqual(user.last_name, 'new')
 
-        # delete
-        user.delete()
-        result = self.db.get_row('users', 'user_id', user.id)
+            # delete
+            user.delete()
+            result = self.db.get_row('users', 'user_id', user.id)
 
-        self.assertFalse(result)
+            self.assertFalse(result)
 
     def test_user_get_all(self):
-        user = User(self.db, self.user_info1)
-        user.create()
+        with self.app.app_context():
+            user = User(self.db, self.user_info1)
+            user.create()
 
-        user2 = User(self.db, self.user_info2)
-        user2.create()
+            user2 = User(self.db, self.user_info2)
+            user2.create()
 
-        results = user.get_all(self.db)
+            results = user.get_all(self.db)
 
-        self.assertEqual(len(results), 2)
+            self.assertEqual(len(results), 2)
 
     def test_parse_user_info(self):
-        self.user_info1['confirm_pw'] = 'aGoodPassw0rd'
+        with self.app.app_context():
+            self.user_info1['confirm_pw'] = 'aGoodPassw0rd'
 
-        self.assertDictEqual(
-            self.user_info1,
-            User.parse_user_info(self.user_info1)
-        )
+            self.assertDictEqual(
+                self.user_info1,
+                User.parse_user_info(self.user_info1)
+            )
 
     def test_validate_name(self):
         errors = User.validate_name('')
@@ -190,6 +200,8 @@ class TestUserClass(unittest.TestCase):
             ['Email is Invalid.', 'Email address is too long.']
         )
 
+        # chech that email is not already in the db
+
     def test_validate_integer(self):
         errors = User.validate_integer('string')
         self.assertListEqual(
@@ -228,99 +240,101 @@ class TestUserClass(unittest.TestCase):
         )
 
     def test_validate_password(self):
-        errors = User.validate_password(
-            'aGoodPassW0rd',
-            'aGoodPassW0rd'
-        )
-        self.assertListEqual(
-            errors, []
-        )
+        with self.app.app_context():
+            errors = User.validate_password(
+                'aGoodPassW0rd',
+                'aGoodPassW0rd'
+            )
+            self.assertListEqual(
+                errors, []
+            )
 
-        errors = User.validate_password(
-            'aGood',
-            'aGoodPassW0rd'
-        )
-        self.assertListEqual(
-            errors,
-            ['Passwords do not match!']
-        )
+            errors = User.validate_password(
+                'aGood',
+                'aGoodPassW0rd'
+            )
+            self.assertListEqual(
+                errors,
+                ['Passwords do not match!']
+            )
 
-        errors = User.validate_password(
-            'aGood11',
-            'aGood11'
-        )
-        self.assertListEqual(
-            errors,
-            ['Passwords cannot be shorter then ' +
-             '10 characters or longer then 164.']
-        )
+            errors = User.validate_password(
+                'aGood11',
+                'aGood11'
+            )
+            self.assertListEqual(
+                errors,
+                ['Passwords cannot be shorter then ' +
+                '10 characters or longer then 164.']
+            )
 
-        errors = User.validate_password(
-            'aGood11' + 'G' * 160,
-            'aGood11' + 'G' * 160
-        )
-        self.assertListEqual(
-            errors,
-            ['Passwords cannot be shorter then ' +
-             '10 characters or longer then 164.']
-        )
+            errors = User.validate_password(
+                'aGood11' + 'G' * 160,
+                'aGood11' + 'G' * 160
+            )
+            self.assertListEqual(
+                errors,
+                ['Passwords cannot be shorter then ' +
+                '10 characters or longer then 164.']
+            )
 
-        errors = User.validate_password(
-            'abadpasswordwithn0caps',
-            'abadpasswordwithn0caps'
-        )
-        self.assertListEqual(
-            errors,
-            ['Password must contain an upper and lowercase letter.']
-        )
+            errors = User.validate_password(
+                'abadpasswordwithn0caps',
+                'abadpasswordwithn0caps'
+            )
+            self.assertListEqual(
+                errors,
+                ['Password must contain an upper and lowercase letter.']
+            )
 
-        errors = User.validate_password(
-            'ABADPASSWORDWITH0LOWERS',
-            'ABADPASSWORDWITH0LOWERS'
-        )
-        self.assertListEqual(
-            errors,
-            ['Password must contain an upper and lowercase letter.']
-        )
+            errors = User.validate_password(
+                'ABADPASSWORDWITH0LOWERS',
+                'ABADPASSWORDWITH0LOWERS'
+            )
+            self.assertListEqual(
+                errors,
+                ['Password must contain an upper and lowercase letter.']
+            )
 
-        errors = User.validate_password(
-            'aBadPassWordWithNoNums',
-            'aBadPassWordWithNoNums'
-        )
-        self.assertListEqual(
-            errors,
-            ['Password must contain at least one number.']
-        )
+            errors = User.validate_password(
+                'aBadPassWordWithNoNums',
+                'aBadPassWordWithNoNums'
+            )
+            self.assertListEqual(
+                errors,
+                ['Password must contain at least one number.']
+            )
 
-        errors = User.validate_password(
-            'password',
-            'pword'
-        )
-        self.assertListEqual(
-            errors,
-            [
-                'Passwords do not match!',
-                'Passwords cannot be shorter then ' +
-                '10 characters or longer then 164.',
-                'Password must contain an upper and lowercase letter.',
-                'Password must contain at least one number.'
-            ]
-        )
+            errors = User.validate_password(
+                'password',
+                'pword'
+            )
+            self.assertListEqual(
+                errors,
+                [
+                    'Passwords do not match!',
+                    'Passwords cannot be shorter then ' +
+                    '10 characters or longer then 164.',
+                    'Password must contain an upper and lowercase letter.',
+                    'Password must contain at least one number.'
+                ]
+            )
 
     def test_user_validate(self):
-        errors = User.validate(self.user_info1)
+        with self.app.app_context():
+            errors = User.validate(self.user_info1)
 
-        self.assertListEqual(
-            errors, []
-        )
+            self.assertListEqual(
+                errors, []
+            )
 
-        errors = User.validate(self.user_info3)
-        self.assertListEqual(
-            errors,
-            [
-                'Name field cannot be blank.',
-                'Email is Invalid.',
-                'Passwords do not match!',
-                'Integer value should be less then 3.',
-            ]
-        )
+            errors = User.validate(self.user_info3)
+            self.assertListEqual(
+                errors,
+                [
+                    'Name field cannot be blank.',
+                    'Email is Invalid.',
+                    'Passwords do not match!',
+                    'Integer value should be less then 3.',
+                ]
+            )
