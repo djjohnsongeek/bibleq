@@ -46,8 +46,11 @@ class User():
     def update(self, **fields):
         self.db.update_row(
             'users',
-            {'user_id': self.id},
-            fields
+            {
+                'field_name': 'user_id',
+                'id': self.id
+            },
+            fields,
         )
 
         pass
