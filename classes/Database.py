@@ -170,10 +170,11 @@ class Database:
         cur.close()
 
     def get_row(self, table, id_col, row_id):
-        sql = 'SELECT * FROM %s WHERE %s = $s;'
+        sql = f'SELECT * FROM {table} WHERE {id_col} = '
+        sql = sql + '%s;'
 
         cur = self.conn.cursor()
-        cur.execute(sql, (table, id_col, row_id))
+        cur.execute(sql, (row_id))
 
         result = cur.fetchone()
         cur.close()
