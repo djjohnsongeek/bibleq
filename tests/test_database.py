@@ -8,7 +8,7 @@ from classes.Database import db
 from classes.Database import DatabaseTransitionError
 
 
-class DataBaseTests(unittest.TestCase):
+class TestDatabase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
