@@ -144,7 +144,7 @@ class Database:
         return result['LAST_INSERT_ID()']
 
     # TODO write tests
-    def update_row(self, table, id_col, **fields):
+    def update_row(self, table, id_col, fields):
         ''' Ensure table and fields are validated '''
 
         # seperate sql generation off
