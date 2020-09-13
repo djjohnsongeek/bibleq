@@ -123,10 +123,19 @@ class TestUserClass(unittest.TestCase):
             self.assertEqual(result['last_name'], user.last_name)
 
             # update
-            user.update(first_name='new', last_name='new')
+            user.update({
+                'first_name': 'new',
+                'last_name': 'new',
+            })
 
             self.assertEqual(user.first_name, 'new')
             self.assertEqual(user.last_name, 'new')
+
+            result = self.db.get_row('users', 'user_id', user.id)
+
+            # ensure database was updated
+            self.assertEqual(result['first_name'], 'new')
+            self.assertEqual(result['last_name'], 'new')
 
             # delete
             user.delete()
@@ -240,6 +249,8 @@ class TestUserClass(unittest.TestCase):
         )
 
     def test_validate_password(self):
+        pw_limit = self.app.config['PW_LIMIT']
+
         with self.app.app_context():
             errors = User.validate_password(
                 'aGoodPassW0rd',
@@ -250,7 +261,7 @@ class TestUserClass(unittest.TestCase):
             )
 
             errors = User.validate_password(
-                'aGood',
+                'aGoodPassw0rd1',
                 'aGoodPassW0rd'
             )
             self.assertListEqual(
@@ -264,8 +275,8 @@ class TestUserClass(unittest.TestCase):
             )
             self.assertListEqual(
                 errors,
-                ['Passwords cannot be shorter then ' +
-                '10 characters or longer then 164.']
+                ['Password cannot be shorter then ' +
+                f'10 characters or longer then {pw_limit}.']
             )
 
             errors = User.validate_password(
@@ -274,8 +285,8 @@ class TestUserClass(unittest.TestCase):
             )
             self.assertListEqual(
                 errors,
-                ['Passwords cannot be shorter then ' +
-                '10 characters or longer then 164.']
+                ['Password cannot be shorter then ' +
+                f'10 characters or longer then {pw_limit}.']
             )
 
             errors = User.validate_password(
@@ -313,8 +324,8 @@ class TestUserClass(unittest.TestCase):
                 errors,
                 [
                     'Passwords do not match!',
-                    'Passwords cannot be shorter then ' +
-                    '10 characters or longer then 164.',
+                    'Password cannot be shorter then ' +
+                    f'10 characters or longer then {pw_limit}.',
                     'Password must contain an upper and lowercase letter.',
                     'Password must contain at least one number.'
                 ]
