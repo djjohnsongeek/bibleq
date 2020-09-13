@@ -43,17 +43,16 @@ class User():
 
         cur.close()
 
-    def update(self, **fields):
-        self.db.update_row(
-            'users',
-            {
-                'field_name': 'user_id',
-                'id': self.id
-            },
-            fields,
-        )
+    def update(self, fields):
+        id_column = {
+            'field_name': 'user_id',
+            'id': self.id,
+        }
+        self.db.update_row('users', id_column, fields)
 
-        pass
+        # upldate instance attributes
+        for field in fields.items():
+            self.__setattr__(field[0], field[1])
 
     @staticmethod
     def parse_user_info(form_data):
@@ -195,13 +194,13 @@ class User():
 
         try:
             integer = int(integer)
-        except TypeError:
+        except ValueError:
             errors.append('An Integer was expected.')
             return errors
 
         if start and integer < start:
             errors.append(f'Integer value should be at '
-                          f' least equal to {start}.')
+                          f'least equal to {start}.')
 
         if end and integer > end:
             errors.append(f'Integer value should be less then {end}.')
