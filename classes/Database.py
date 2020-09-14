@@ -181,5 +181,18 @@ class Database:
 
         return result
 
+    def get_rows(self, table, where_statement=None):
+        
+        sql = f'SELECT * FROM {table} '
+        if where_statement:
+            sql = sql + where_statement
+
+        cur = self.db.conn.cursor()
+        cur.execute(sql)
+        result = cur.fetchall()
+        cur.close()
+
+        return result
+
 
 db = Database()
