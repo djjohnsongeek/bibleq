@@ -27,6 +27,18 @@ class TestDatabase(unittest.TestCase):
         with self.app.app_context():
             self.db.connect()
 
+            cur = self.db.conn.cursor()
+            cur.execute(
+                'INSERT INTO error_logs (message, level) VALUES ("test log 1", 1);'
+                'INSERT INTO error_logs (message, level) VALUES ("test log 2", 2);'
+                'INSERT INTO error_logs (message, level) VALUES ("test log 3", 3);'
+                'INSERT INTO emails (subject, body, description) VALUES ("Notice 1", "Test Body 1", "Description 1");'
+                'INSERT INTO emails (subject, body, description) VALUES ("Notice 2", "Test Body 2", "Description 2");'
+                'INSERT INTO emails (subject, body, description) VALUES ("Notice 3", "Test Body 3", "Description 3");'
+            )
+
+            conn.commit()
+            
     def tearDown(self):
         with self.app.app_context():
             self.db.close()
@@ -179,3 +191,13 @@ class TestDatabase(unittest.TestCase):
         # validate row id value
         last_inserted_id = self.db.get_last_insert_id()
         self.assertEqual(last_inserted_id, 1)
+
+    def test_get_row(self):
+
+        pass
+
+    def test_get_rows(self):
+        pass
+
+    def test_update_row(self):
+        pass
