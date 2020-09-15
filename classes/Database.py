@@ -36,6 +36,9 @@ class Database:
             self.conn.close()
         self.conn = None
 
+    def commit(self):
+        self.conn.commit()
+
     def init(self, app_config: dict):
         self.params = dict(
             host=app_config['MYSQL_HOST'],
@@ -68,7 +71,7 @@ class Database:
         result = self.execute_statements(cur, statements)
 
         if result:
-            self.conn.commit()
+            self.commit()
         else:
             self.conn.rollback()
 
@@ -128,7 +131,7 @@ class Database:
         cur.execute(
             f'TRUNCATE {table};'
         )
-        self.conn.commit()
+        self.commit()
         cur.close()
 
     def get_last_insert_id(self):
@@ -143,11 +146,10 @@ class Database:
 
         return result['LAST_INSERT_ID()']
 
-    # TODO write tests
     def update_row(self, table, id_col, fields):
         ''' Ensure table and fields are validated '''
 
-        # seperate sql generation off
+        # TODO seperate sql generation off
         sql = f'UPDATE {table} '
 
         count = 1
@@ -182,12 +184,12 @@ class Database:
         return result
 
     def get_rows(self, table, where_statement=None):
-        
+
         sql = f'SELECT * FROM {table} '
         if where_statement:
             sql = sql + where_statement
 
-        cur = self.db.conn.cursor()
+        cur = self.conn.cursor()
         cur.execute(sql)
         result = cur.fetchall()
         cur.close()
