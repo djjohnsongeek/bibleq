@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3308
--- Generation Time: Sep 03, 2020 at 03:09 AM
+-- Generation Time: Sep 15, 2020 at 01:25 AM
 -- Server version: 8.0.18
 -- PHP Version: 7.3.12
 
@@ -30,7 +30,7 @@ SET time_zone = "+00:00";
 
 DROP TABLE IF EXISTS `account_types`;
 CREATE TABLE IF NOT EXISTS `account_types` (
-  `level_id` int(10) UNSIGNED NOT NULL,
+  `level_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` char(8) NOT NULL,
   `description` tinytext NOT NULL,
   PRIMARY KEY (`level_id`)
@@ -90,7 +90,7 @@ CREATE TABLE IF NOT EXISTS `comments` (
 
 DROP TABLE IF EXISTS `emails`;
 CREATE TABLE IF NOT EXISTS `emails` (
-  `email_id` tinyint(1) UNSIGNED NOT NULL,
+  `email_id` tinyint(1) UNSIGNED NOT NULL AUTO_INCREMENT,
   `subject` tinytext NOT NULL,
   `body` text NOT NULL,
   `description` tinytext NOT NULL,
