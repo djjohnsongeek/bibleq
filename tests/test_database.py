@@ -28,19 +28,31 @@ class TestDatabase(unittest.TestCase):
             self.db.connect()
 
             cur = self.db.conn.cursor()
-            cur.execute(
-                'INSERT INTO error_logs (message, level) VALUES ("test log 1", 1);'
-                'INSERT INTO error_logs (message, level) VALUES ("test log 2", 2);'
-                'INSERT INTO error_logs (message, level) VALUES ("test log 3", 3);'
-                'INSERT INTO emails (subject, body, description) VALUES ("Notice 1", "Test Body 1", "Description 1");'
-                'INSERT INTO emails (subject, body, description) VALUES ("Notice 2", "Test Body 2", "Description 2");'
-                'INSERT INTO emails (subject, body, description) VALUES ("Notice 3", "Test Body 3", "Description 3");'
-            )
 
-            conn.commit()
-            
+            sql = 'INSERT INTO error_logs (message, level) VALUES (%s, %s);'
+            values = [
+                ('Log 1', 1),
+                ('Log 2', 2),
+                ('Log 3', 3),
+            ]
+            cur.executemany(sql, values)
+
+            sql = ('INSERT INTO emails (subject, body, description) '
+                   'VALUES (%s, %s, %s);')
+            values = [
+                ('Subject 1', 'Body 1', 'Description 1'),
+                ('Subject 2', 'Body 2', 'Description 2'),
+                ('Subject 3', 'Body 3', 'Description 3'),
+            ]
+            cur.executemany(sql, values)
+
+            self.db.commit()
+
     def tearDown(self):
         with self.app.app_context():
+            self.db.trucate_table('error_logs')
+            self.db.trucate_table('emails')
+
             self.db.close()
 
     def test_init(self):
@@ -190,14 +202,26 @@ class TestDatabase(unittest.TestCase):
 
         # validate row id value
         last_inserted_id = self.db.get_last_insert_id()
-        self.assertEqual(last_inserted_id, 1)
+        self.assertEqual(last_inserted_id, 4)
 
     def test_get_row(self):
+        row = self.db.get_row('error_logs', 'log_id', 1)
 
-        pass
+        self.assertEqual(row['message'], 'Log 1')
+        self.assertEqual(row['level'], 1)
+
+        row = self.db.get_row('emails', 'email_id', 2)
+
+        self.assertEqual(row['subject'], 'Subject 2')
+        self.assertEqual(row['body'], 'Body 2')
+        self.assertEqual(row['description'], 'Description 2')
 
     def test_get_rows(self):
-        pass
+        rows = self.db.get_rows('error_logs')
+        self.assertEqual(len(rows), 3)
 
-    def test_update_row(self):
-        pass
+        rows = self.db.get_rows('error_logs', 'WHERE level < 3;')
+        self.assertEqual(len(rows), 2)
+
+        rows = self.db.get_rows('emails', 'WHERE subject = "Subject 3";')
+        self.assertEqual(len(rows), 1)
