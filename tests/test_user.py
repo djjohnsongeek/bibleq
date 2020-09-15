@@ -6,7 +6,7 @@ from classes.User import User
 
 
 class TestUserClass(unittest.TestCase):
-    
+
     @classmethod
     def setUpClass(cls):
         cls.db = db
