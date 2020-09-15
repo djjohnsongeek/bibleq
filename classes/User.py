@@ -54,6 +54,52 @@ class User():
         for field in fields.items():
             self.__setattr__(field[0], field[1])
 
+    def delete(self):
+        cur = self.db.conn.cursor()
+        sql = 'DELETE FROM users WHERE user_id = %s;'
+        result = cur.execute(sql, self.id)
+
+        if result == 1:
+            self.db.conn.commit()
+            result = True
+        else:
+            result = False
+
+        cur.close()
+        return result
+
+    @staticmethod # add tests
+    def get_user(db, user_id=None, email=None):
+        cur = db.conn.cursor()
+        
+        sql = 'SELECT * FROM users WHERE '
+
+        if user_id:
+            sql = sql + 'user_id = %s;'
+            value = user_id
+        elif email:
+            sql = 'email = %s;'
+            value = email
+        else:
+            return None
+
+        result = cur.execute(sql, (value,))
+        
+        return User(self.db, result)
+
+    @staticmethod
+    def get_all(db):
+        cur = db.conn.cursor()
+
+        cur.execute(
+            'SELECT * FROM users;'
+        )
+
+        results = cur.fetchall()
+        cur.close()
+
+        return results
+
     @staticmethod
     def parse_user_info(form_data):
 
@@ -69,33 +115,6 @@ class User():
         }
 
         return user_info
-
-    def delete(self):
-        cur = self.db.conn.cursor()
-        sql = 'DELETE FROM users WHERE user_id = %s;'
-        result = cur.execute(sql, self.id)
-
-        if result == 1:
-            self.db.conn.commit()
-            result = True
-        else:
-            result = False
-
-        cur.close()
-        return result
-
-    @staticmethod
-    def get_all(db):
-        cur = db.conn.cursor()
-
-        cur.execute(
-            'SELECT * FROM users;'
-        )
-
-        results = cur.fetchall()
-        cur.close()
-
-        return results
 
     # validation methods
     @staticmethod
@@ -160,6 +179,8 @@ class User():
         if len(email) > 64:
             errors.append('Email address is too long.')
 
+        # test email
+
         return errors
 
     @staticmethod
@@ -206,4 +227,5 @@ class User():
             errors.append(f'Integer value should be less then {end}.')
 
         return errors
-    # add get user?
+
+    # 'load' user from database
