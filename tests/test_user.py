@@ -64,7 +64,8 @@ class TestUserClass(unittest.TestCase):
             self.db.connect()
 
     def test_user_init(self):
-        user = User(self.db, self.user_info1)
+        with self.app.app_context():
+            user = User(self.db, self.user_info1)
 
         self.assertEqual(
             user.first_name,
@@ -103,7 +104,7 @@ class TestUserClass(unittest.TestCase):
 
         self.assertEqual(
             user.id,
-            None,
+            1,
         )
 
         self.assertIs(self.db, user.db)
@@ -111,9 +112,6 @@ class TestUserClass(unittest.TestCase):
     def test_user_CRUD(self):
         with self.app.app_context():
             user = User(self.db, self.user_info1)
-
-            # create
-            user.create()
 
             self.assertEqual(1, user.id)
             result = self.db.get_row('users', 'user_id', user.id)
@@ -146,10 +144,7 @@ class TestUserClass(unittest.TestCase):
     def test_user_get_all(self):
         with self.app.app_context():
             user = User(self.db, self.user_info1)
-            user.create()
-
             user2 = User(self.db, self.user_info2)
-            user2.create()
 
             results = user.get_all(self.db)
 
@@ -165,19 +160,22 @@ class TestUserClass(unittest.TestCase):
             )
 
     def test_validate_name(self):
-        errors = User.validate_name('')
+        with self.app.app_context():
+            user = User(self.db, self.user_info1)
+
+        errors = user.validate_name('')
         self.assertListEqual(
             errors,
             ['Name field cannot be blank.'],
         )
 
-        errors = User.validate_name('D' * 65)
+        errors = user.validate_name('D' * 65)
         self.assertListEqual(
             errors,
             ['Name fields must be less then 64 characters.']
         )
 
-        errors = User.validate_name('FirstName')
+        errors = user.validate_name('FirstName')
         self.assertListEqual(
             errors,
             []
@@ -185,74 +183,79 @@ class TestUserClass(unittest.TestCase):
         pass
 
     def test_validate_email(self):
-        errors = User.validate_email('email')
+        with self.app.app_context():
+            user = User(self.db, self.user_info1)
+
+        errors = user.validate_email('email')
         self.assertListEqual(
             errors,
             ['Email is Invalid.']
         )
 
-        errors = User.validate_email('email@gmail.com')
+        errors = user.validate_email('email@gmail.com')
         self.assertListEqual(
             errors,
-            []
+            ['User with this email already exists.']
         )
 
-        errors = User.validate_email('e' * 65 + '@gmail.com')
+        errors = user.validate_email('e' * 65 + '@gmail.com')
         self.assertListEqual(
             errors,
             ['Email address is too long.']
         )
 
-        errors = User.validate_email('e' * 65)
+        errors = user.validate_email('e' * 65)
         self.assertListEqual(
             errors,
             ['Email is Invalid.', 'Email address is too long.']
         )
 
-        # chech that email is not already in the db
-
     def test_validate_integer(self):
-        errors = User.validate_integer('string')
+        with self.app.app_context():
+            user = User(self.db, self.user_info1)
+
+        errors = user.validate_integer('string')
         self.assertListEqual(
             errors,
             ['An Integer was expected.']
         )
 
-        errors = User.validate_integer(8, 1, 3)
+        errors = user.validate_integer(8, 1, 3)
         self.assertListEqual(
             errors,
             ['Integer value should be less then 3.']
         )
 
-        errors = User.validate_integer(0, 1, 3)
+        errors = user.validate_integer(0, 1, 3)
         self.assertListEqual(
             errors,
             ['Integer value should be at least equal to 1.']
         )
 
-        errors = User.validate_integer('1')
+        errors = user.validate_integer('1')
         self.assertListEqual(
             errors,
             []
         )
 
-        errors = User.validate_integer(7)
+        errors = user.validate_integer(7)
         self.assertListEqual(
             errors,
             []
         )
 
-        errors = User.validate_integer(7, 1, 10)
+        errors = user.validate_integer(7, 1, 10)
         self.assertListEqual(
             errors,
             []
         )
 
     def test_validate_password(self):
-        pw_limit = self.app.config['PW_LIMIT']
-
         with self.app.app_context():
-            errors = User.validate_password(
+            user = User(self.db, self.user_info1)
+            pw_limit = self.app.config['PW_LIMIT']
+
+            errors = user.validate_password(
                 'aGoodPassW0rd',
                 'aGoodPassW0rd'
             )
@@ -260,7 +263,7 @@ class TestUserClass(unittest.TestCase):
                 errors, []
             )
 
-            errors = User.validate_password(
+            errors = user.validate_password(
                 'aGoodPassw0rd1',
                 'aGoodPassW0rd'
             )
@@ -269,7 +272,7 @@ class TestUserClass(unittest.TestCase):
                 ['Passwords do not match!']
             )
 
-            errors = User.validate_password(
+            errors = user.validate_password(
                 'aGood11',
                 'aGood11'
             )
@@ -279,7 +282,7 @@ class TestUserClass(unittest.TestCase):
                 f'10 characters or longer then {pw_limit}.']
             )
 
-            errors = User.validate_password(
+            errors = user.validate_password(
                 'aGood11' + 'G' * 160,
                 'aGood11' + 'G' * 160
             )
@@ -289,7 +292,7 @@ class TestUserClass(unittest.TestCase):
                 f'10 characters or longer then {pw_limit}.']
             )
 
-            errors = User.validate_password(
+            errors = user.validate_password(
                 'abadpasswordwithn0caps',
                 'abadpasswordwithn0caps'
             )
@@ -298,7 +301,7 @@ class TestUserClass(unittest.TestCase):
                 ['Password must contain an upper and lowercase letter.']
             )
 
-            errors = User.validate_password(
+            errors = user.validate_password(
                 'ABADPASSWORDWITH0LOWERS',
                 'ABADPASSWORDWITH0LOWERS'
             )
@@ -307,7 +310,7 @@ class TestUserClass(unittest.TestCase):
                 ['Password must contain an upper and lowercase letter.']
             )
 
-            errors = User.validate_password(
+            errors = user.validate_password(
                 'aBadPassWordWithNoNums',
                 'aBadPassWordWithNoNums'
             )
@@ -316,7 +319,7 @@ class TestUserClass(unittest.TestCase):
                 ['Password must contain at least one number.']
             )
 
-            errors = User.validate_password(
+            errors = user.validate_password(
                 'password',
                 'pword'
             )
@@ -333,13 +336,17 @@ class TestUserClass(unittest.TestCase):
 
     def test_user_validate(self):
         with self.app.app_context():
-            errors = User.validate(self.user_info1)
+            user = User(self.db, self.user_info1)
 
+            # user is created within init
+            errors = user.validate(self.user_info1)
             self.assertListEqual(
-                errors, []
+                errors,
+                ['User with this email already exists.']
             )
 
-            errors = User.validate(self.user_info3)
+            
+            errors = user.validate(self.user_info3)
             self.assertListEqual(
                 errors,
                 [
@@ -349,3 +356,28 @@ class TestUserClass(unittest.TestCase):
                     'Integer value should be less then 3.',
                 ]
             )
+
+    def test_get_user_info(self):
+        with self.app.app_context():
+
+            user1 = User(self.db, self.user_info1)
+            user2 = User(self.db, self.user_info2)
+
+            user_info = User.get_user_info(self.db, 1)
+            self.assertTrue(user_info)
+
+            user_info = User.get_user_info(self.db, 3)
+            self.assertFalse(user_info)
+
+            user_info = User.get_user_info(
+                self.db, None, self.user_info1['email']
+            )
+            self.assertTrue(user_info)
+
+            user_info = User.get_user_info(
+                self.db, None, self.user_info3['email']
+            )
+            self.assertFalse(user_info)
+
+            user_info = User.get_user_info(db)
+            self.assertIsNone(user_info)
