@@ -1,4 +1,5 @@
 import re
+import sys
 
 from flask import current_app
 
@@ -8,17 +9,24 @@ from classes.Util import Util
 class User():
 
     def __init__(self, db, user_params):
-
         self.db = db
+        self.errors = None
+        
+        if not user_params.get('user_id', None):
+            self.errors = self.validate(user_params)
 
-        self.first_name = user_params['first_name']
-        self.last_name = user_params['last_name']
-        self.email = user_params['email']
-        self.account_level = user_params['account_level']
-        self.question_count = user_params.get('question_count', 0)
-        self.answer_count = user_params.get('answer_count', 0)
-        self.password = user_params['password']
-        self.id = None
+        if not self.errors:
+            self.id = user_params.get('user_id', None)
+            self.first_name = user_params['first_name']
+            self.last_name = user_params['last_name']
+            self.email = user_params['email']
+            self.account_level = user_params['account_level']
+            self.question_count = user_params.get('question_count', 0)
+            self.answer_count = user_params.get('answer_count', 0)
+            self.password = user_params['password']
+
+            if not user_params.get('user_id', None):
+                self.create()
 
     def create(self):
         cur = self.db.conn.cursor()
@@ -32,7 +40,7 @@ class User():
             self.first_name,
             self.last_name,
             self.email,
-            self.password,
+            self.password, # hash password
             self.question_count,
             self.answer_count,
             self.account_level,)
@@ -50,7 +58,7 @@ class User():
         }
         self.db.update_row('users', id_column, fields)
 
-        # upldate instance attributes
+        # update instance attributes
         for field in fields.items():
             self.__setattr__(field[0], field[1])
 
@@ -68,24 +76,24 @@ class User():
         cur.close()
         return result
 
-    @staticmethod # add tests
-    def get_user(db, user_id=None, email=None):
+    @staticmethod
+    def get_user_info(db, user_id=None, email=None):
         cur = db.conn.cursor()
         
         sql = 'SELECT * FROM users WHERE '
 
         if user_id:
-            sql = sql + 'user_id = %s;'
+            sql = sql + 'user_id=%s;'
             value = user_id
         elif email:
-            sql = 'email = %s;'
+            sql = sql + 'email=%s;'
             value = email
         else:
             return None
 
         result = cur.execute(sql, (value,))
         
-        return User(self.db, result)
+        return result
 
     @staticmethod
     def get_all(db):
@@ -117,42 +125,47 @@ class User():
         return user_info
 
     # validation methods
-    @staticmethod
-    def validate(user_info):
+    def validate(self, user_info):
         errors = []
 
         errors.extend(
-            User.validate_name(user_info['first_name']))
+            self.validate_name(user_info['first_name'])
+        )
 
         errors.extend(
-            User.validate_name(user_info['last_name']))
+            self.validate_name(user_info['last_name'])
+        )
 
         errors.extend(
-            User.validate_email(user_info['email']))
+            self.validate_email(user_info['email'])
+        )
 
         errors.extend(
-            User.validate_password(
+            self.validate_password(
                 user_info['password'],
-                user_info['confirm_pw'])
+                user_info['confirm_pw']
             )
+        )
 
         errors.extend(
-            User.validate_integer(user_info['question_count']))
+            self.validate_integer(user_info['question_count'])
+        )
 
         errors.extend(
-            User.validate_integer(user_info['answer_count']))
+            self.validate_integer(user_info['answer_count'])
+        )
 
         errors.extend(
-            User.validate_integer(
+            self.validate_integer(
                 user_info['account_level'],
                 start=1,
-                end=3)
+                end=3
             )
+        )
 
         return errors
 
-    @staticmethod
-    def validate_name(name):
+    def validate_name(self, name):
         errors = []
 
         if not name:
@@ -165,9 +178,9 @@ class User():
 
         return errors
 
-    @staticmethod
-    def validate_email(email):
+    def validate_email(self, email):
         errors = []
+
         # regex from https://emailregex.com/
         # basic validation, not full-proof
         regex = re.compile(r'(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]'
@@ -179,12 +192,13 @@ class User():
         if len(email) > 64:
             errors.append('Email address is too long.')
 
-        # test email
+        user_info = self.get_user_info(self.db, None, email)
+        if user_info:
+            errors.append('User with this email already exists.')
 
         return errors
 
-    @staticmethod
-    def validate_password(password, confirm_pw):
+    def validate_password(self, password, confirm_pw):
         errors = []
         app = current_app
 
@@ -209,8 +223,7 @@ class User():
 
         return errors
 
-    @staticmethod
-    def validate_integer(integer, start=None, end=None):
+    def validate_integer(self, integer, start=None, end=None):
         errors = []
 
         try:
