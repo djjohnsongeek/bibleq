@@ -2,6 +2,7 @@ import re
 import sys
 
 from flask import current_app
+from werkzeug.security import generate_password_hash
 
 from classes.Util import Util
 
@@ -35,18 +36,19 @@ class User():
                'password, question_count, '
                'answer_count, account_level) '
                'VALUES (%s, %s, %s, %s, %s, %s, %s);')
+        hash = generate_password_hash(self.password)
 
         cur.execute(sql, (
             self.first_name,
             self.last_name,
             self.email,
-            self.password, # hash password
+            hash, 
             self.question_count,
             self.answer_count,
             self.account_level,)
         )
 
-        self.db.conn.commit()
+        self.db.commit()
         self.id = self.db.get_last_insert_id()
 
         cur.close()
@@ -91,7 +93,9 @@ class User():
         else:
             return None
 
-        result = cur.execute(sql, (value,))
+        cur.execute(sql, (value,))
+        result = cur.fetchone()
+        cur.close()
         
         return result
 
