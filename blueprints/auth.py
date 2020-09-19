@@ -19,7 +19,6 @@ blue_print = Blueprint('auth', __name__, url_prefix='/auth')
 
 
 @blue_print.route('/register', methods=('GET', 'POST'))
-
 def register():
     # register a new user
     if request.method == 'POST':
@@ -33,16 +32,42 @@ def register():
                 flash(error_msg, 'error')
 
         return redirect(url_for('auth.login'))
-        
+
     # display register form
     return render_template('auth/register.html')
 
 
 @blue_print.route('/login', methods=('GET', 'POST'))
 def login():
+    # process login request
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        user_info = User.get_user_info(g.db, None, email)
+
+        if user_info is None:
+            flash('Login failed.', 'error')
+        else:
+            authenticated = security.check_password_hash(
+                user_info['password'], 
+                password
+            )
+
+            if authenticated:
+                session.clear()
+
+                del user_info['password']
+                session['user'] = user_info
+                flash('Logged in!', 'info')
+
+                return redirect(url_for('index.index'))
+            else:
+                flash('Invalid Password.', 'error')
+    # display login form
     return render_template('auth/login.html')
 
 
 @blue_print.route('/logout', methods=('GET',))
 def logout():
-    return 'logout'
+    session.clear()
+    return redirect(url_for('auth.login'))
