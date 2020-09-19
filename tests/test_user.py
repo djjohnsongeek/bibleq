@@ -1,4 +1,5 @@
 import unittest
+import sys
 
 from bibleq import create_app
 from classes.Database import db
@@ -360,24 +361,45 @@ class TestUserClass(unittest.TestCase):
     def test_get_user_info(self):
         with self.app.app_context():
 
+            # create users for testing
             user1 = User(self.db, self.user_info1)
             user2 = User(self.db, self.user_info2)
 
+            # retrieve user info by id
             user_info = User.get_user_info(self.db, 1)
-            self.assertTrue(user_info)
 
+            self.assertEqual(user_info['first_name'], user1.first_name)
+            self.assertEqual(user_info['last_name'], user1.last_name)
+            
+            # instatiate user from info
+            user_obj = User(self.db, user_info)
+            self.assertIsInstance(user_obj, User)
+
+            # test user info retreval failure
             user_info = User.get_user_info(self.db, 3)
-            self.assertFalse(user_info)
+            self.assertIsNone(user_info)
 
+            # fail to instantiate user from empty info
+            with self.assertRaises(Exception):
+                user_obj = User(self.db, user_info)
+        
+            # retrieve user info by email
             user_info = User.get_user_info(
                 self.db, None, self.user_info1['email']
             )
-            self.assertTrue(user_info)
+            self.assertEqual(user_info['email'], user1.email)
+            self.assertEqual(user_info['first_name'], user1.first_name)
+            self.assertEqual(user_info['last_name'], user1.last_name)
 
+            # instatiate user from info
+            user_obj = User(self.db, user_info)
+            self.assertIsInstance(user_obj, User)
+
+            # get non existant user+info by email
             user_info = User.get_user_info(
                 self.db, None, self.user_info3['email']
             )
-            self.assertFalse(user_info)
+            self.assertIsNone(user_info)
 
             user_info = User.get_user_info(db)
             self.assertIsNone(user_info)
