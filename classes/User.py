@@ -36,13 +36,13 @@ class User():
                'password, question_count, '
                'answer_count, account_level) '
                'VALUES (%s, %s, %s, %s, %s, %s, %s);')
-        hash = generate_password_hash(self.password)
+        self.password = generate_password_hash(self.password)
 
         cur.execute(sql, (
             self.first_name,
             self.last_name,
             self.email,
-            hash, 
+            self.password, 
             self.question_count,
             self.answer_count,
             self.account_level,)
