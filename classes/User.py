@@ -133,34 +133,34 @@ class User():
         errors = []
 
         errors.extend(
-            self.validate_name(user_info['first_name'])
+            self._validate_name(user_info['first_name'])
         )
 
         errors.extend(
-            self.validate_name(user_info['last_name'])
+            self._validate_name(user_info['last_name'])
         )
 
         errors.extend(
-            self.validate_email(user_info['email'])
+            self._validate_email(user_info['email'])
         )
 
         errors.extend(
-            self.validate_password(
+            self._validate_password(
                 user_info['password'],
                 user_info['confirm_pw']
             )
         )
 
         errors.extend(
-            self.validate_integer(user_info['question_count'])
+            self._validate_integer(user_info['question_count'])
         )
 
         errors.extend(
-            self.validate_integer(user_info['answer_count'])
+            self._validate_integer(user_info['answer_count'])
         )
 
         errors.extend(
-            self.validate_integer(
+            self._validate_integer(
                 user_info['account_level'],
                 start=1,
                 end=3
@@ -169,11 +169,11 @@ class User():
 
         return errors
 
-    def validate_name(self, name):
+    def _validate_name(self, name):
         errors = []
 
         if not name:
-            errors.append('Name field cannot be blank.')
+            errors.append('Name fields cannot be blank.')
 
         if len(name) > 64:
             errors.append(
@@ -182,7 +182,7 @@ class User():
 
         return errors
 
-    def validate_email(self, email):
+    def _validate_email(self, email):
         errors = []
 
         # regex from https://emailregex.com/
@@ -202,7 +202,7 @@ class User():
 
         return errors
 
-    def validate_password(self, password, confirm_pw):
+    def _validate_password(self, password, confirm_pw):
         errors = []
         app = current_app
 
@@ -227,7 +227,7 @@ class User():
 
         return errors
 
-    def validate_integer(self, integer, start=None, end=None):
+    def _validate_integer(self, integer, start=None, end=None):
         errors = []
 
         try:
