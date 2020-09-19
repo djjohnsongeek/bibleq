@@ -18,4 +18,7 @@ blue_print = Blueprint('index', __name__)
 
 @blue_print.route('/', methods=('GET',))
 def index():
-    return "index"
+    if session.get('user', None) is None:
+        return redirect(url_for('auth.login'))
+
+    return render_template('index.html')
