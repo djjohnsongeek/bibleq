@@ -21,18 +21,20 @@ blue_print = Blueprint('auth', __name__, url_prefix='/auth')
 @blue_print.route('/register', methods=('GET', 'POST'))
 
 def register():
+    # register a new user
     if request.method == 'POST':
-        user_info = User.parse_user_info(request.form)
-        errors = User.validate(user_info)
+        new_user = User(g.db, User.parse_user_info(request.form))
 
-        if not errors:
-            user = User(g.db, user_info)
-            user.create()
-            flash('Account created', 'info')
+        if not new_user.errors:
+            flash('Account created. Please login.', 'info')
+        else:
+            flash('Account creation failed.', 'info')
+            for error_msg in new_user.errors:
+                flash(error_msg, 'error')
 
         return redirect(url_for('auth.login'))
-
-    User.get_all(g.db)
+        
+    # display register form
     return render_template('auth/register.html')
 
 
