@@ -1,6 +1,7 @@
 import unittest
 import sys
 
+from werkzeug.security import generate_password_hash, check_password_hash
 from bibleq import create_app
 from classes.Database import db
 from classes.User import User
@@ -83,9 +84,11 @@ class TestUserClass(unittest.TestCase):
             self.user_info1['email']
         )
 
-        self.assertEqual(
-            user.password,
-            self.user_info1['password']
+        self.assertTrue(
+            check_password_hash(
+                user.password,
+                self.user_info1['password']
+            )
         )
 
         self.assertEqual(
@@ -164,19 +167,19 @@ class TestUserClass(unittest.TestCase):
         with self.app.app_context():
             user = User(self.db, self.user_info1)
 
-        errors = user.validate_name('')
+        errors = user._validate_name('')
         self.assertListEqual(
             errors,
-            ['Name field cannot be blank.'],
+            ['Name fields cannot be blank.'],
         )
 
-        errors = user.validate_name('D' * 65)
+        errors = user._validate_name('D' * 65)
         self.assertListEqual(
             errors,
             ['Name fields must be less then 64 characters.']
         )
 
-        errors = user.validate_name('FirstName')
+        errors = user._validate_name('FirstName')
         self.assertListEqual(
             errors,
             []
@@ -187,25 +190,25 @@ class TestUserClass(unittest.TestCase):
         with self.app.app_context():
             user = User(self.db, self.user_info1)
 
-        errors = user.validate_email('email')
+        errors = user._validate_email('email')
         self.assertListEqual(
             errors,
             ['Email is Invalid.']
         )
 
-        errors = user.validate_email('email@gmail.com')
+        errors = user._validate_email('email@gmail.com')
         self.assertListEqual(
             errors,
             ['User with this email already exists.']
         )
 
-        errors = user.validate_email('e' * 65 + '@gmail.com')
+        errors = user._validate_email('e' * 65 + '@gmail.com')
         self.assertListEqual(
             errors,
             ['Email address is too long.']
         )
 
-        errors = user.validate_email('e' * 65)
+        errors = user._validate_email('e' * 65)
         self.assertListEqual(
             errors,
             ['Email is Invalid.', 'Email address is too long.']
@@ -215,37 +218,37 @@ class TestUserClass(unittest.TestCase):
         with self.app.app_context():
             user = User(self.db, self.user_info1)
 
-        errors = user.validate_integer('string')
+        errors = user._validate_integer('string')
         self.assertListEqual(
             errors,
             ['An Integer was expected.']
         )
 
-        errors = user.validate_integer(8, 1, 3)
+        errors = user._validate_integer(8, 1, 3)
         self.assertListEqual(
             errors,
             ['Integer value should be less then 3.']
         )
 
-        errors = user.validate_integer(0, 1, 3)
+        errors = user._validate_integer(0, 1, 3)
         self.assertListEqual(
             errors,
             ['Integer value should be at least equal to 1.']
         )
 
-        errors = user.validate_integer('1')
+        errors = user._validate_integer('1')
         self.assertListEqual(
             errors,
             []
         )
 
-        errors = user.validate_integer(7)
+        errors = user._validate_integer(7)
         self.assertListEqual(
             errors,
             []
         )
 
-        errors = user.validate_integer(7, 1, 10)
+        errors = user._validate_integer(7, 1, 10)
         self.assertListEqual(
             errors,
             []
@@ -256,7 +259,7 @@ class TestUserClass(unittest.TestCase):
             user = User(self.db, self.user_info1)
             pw_limit = self.app.config['PW_LIMIT']
 
-            errors = user.validate_password(
+            errors = user._validate_password(
                 'aGoodPassW0rd',
                 'aGoodPassW0rd'
             )
@@ -264,7 +267,7 @@ class TestUserClass(unittest.TestCase):
                 errors, []
             )
 
-            errors = user.validate_password(
+            errors = user._validate_password(
                 'aGoodPassw0rd1',
                 'aGoodPassW0rd'
             )
@@ -273,7 +276,7 @@ class TestUserClass(unittest.TestCase):
                 ['Passwords do not match!']
             )
 
-            errors = user.validate_password(
+            errors = user._validate_password(
                 'aGood11',
                 'aGood11'
             )
@@ -283,7 +286,7 @@ class TestUserClass(unittest.TestCase):
                 f'10 characters or longer then {pw_limit}.']
             )
 
-            errors = user.validate_password(
+            errors = user._validate_password(
                 'aGood11' + 'G' * 160,
                 'aGood11' + 'G' * 160
             )
@@ -293,7 +296,7 @@ class TestUserClass(unittest.TestCase):
                 f'10 characters or longer then {pw_limit}.']
             )
 
-            errors = user.validate_password(
+            errors = user._validate_password(
                 'abadpasswordwithn0caps',
                 'abadpasswordwithn0caps'
             )
@@ -302,7 +305,7 @@ class TestUserClass(unittest.TestCase):
                 ['Password must contain an upper and lowercase letter.']
             )
 
-            errors = user.validate_password(
+            errors = user._validate_password(
                 'ABADPASSWORDWITH0LOWERS',
                 'ABADPASSWORDWITH0LOWERS'
             )
@@ -311,7 +314,7 @@ class TestUserClass(unittest.TestCase):
                 ['Password must contain an upper and lowercase letter.']
             )
 
-            errors = user.validate_password(
+            errors = user._validate_password(
                 'aBadPassWordWithNoNums',
                 'aBadPassWordWithNoNums'
             )
@@ -320,7 +323,7 @@ class TestUserClass(unittest.TestCase):
                 ['Password must contain at least one number.']
             )
 
-            errors = user.validate_password(
+            errors = user._validate_password(
                 'password',
                 'pword'
             )
@@ -351,7 +354,7 @@ class TestUserClass(unittest.TestCase):
             self.assertListEqual(
                 errors,
                 [
-                    'Name field cannot be blank.',
+                    'Name fields cannot be blank.',
                     'Email is Invalid.',
                     'Passwords do not match!',
                     'Integer value should be less then 3.',
