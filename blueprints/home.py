@@ -13,12 +13,9 @@ import werkzeug.security as security
 from classes.DataFetcher import DataFetcher
 from classes.Question import Question
 
-blue_print = Blueprint('index', __name__)
+blue_print = Blueprint('home', __name__)
 
 
 @blue_print.route('/', methods=('GET',))
 def index():
-    if session.get('user', None) is None:
-        return redirect(url_for('auth.login'))
-
     return render_template('index.html')
