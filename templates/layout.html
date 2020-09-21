@@ -14,9 +14,11 @@
     <body>
         <header>
             <nav>
-                <a href="#">Nav Link 1</a>
-                <a href="#">Nav Link 2</a>
-                <a href="#">Nav Link 3</a>
+                <a href="{{ url_for('home.index') }}">Home</a>
+                <a href="{{ url_for('questions.create') }}">Create Questions</a>
+                <a href="{{ url_for('auth.register') }}">Register</a>
+                <a href="{{ url_for('auth.login') }}">Login</a>
+                <a href="{{ url_for('auth.logout') }}">Logout</a>
             </nav>
             <h1>{% block heading %}{% endblock %}</h1>
         </header>
