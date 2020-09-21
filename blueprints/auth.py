@@ -48,12 +48,12 @@ def login():
         if user_info is None:
             flash('Login failed.', 'error')
         else:
-            authenticated = security.check_password_hash(
+            auth = security.check_password_hash(
                 user_info['password'], 
                 password
             )
 
-            if authenticated:
+            if auth:
                 session.clear()
 
                 del user_info['password']
@@ -63,6 +63,7 @@ def login():
                 return redirect(url_for('home.index'))
             else:
                 flash('Invalid Password.', 'error')
+    
     # display login form
     return render_template('auth/login.html')
 
