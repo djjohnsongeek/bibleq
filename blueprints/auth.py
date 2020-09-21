@@ -60,7 +60,7 @@ def login():
                 session['user'] = user_info
                 flash('Logged in!', 'info')
 
-                return redirect(url_for('index.index'))
+                return redirect(url_for('home.index'))
             else:
                 flash('Invalid Password.', 'error')
     # display login form
@@ -69,5 +69,14 @@ def login():
 
 @blue_print.route('/logout', methods=('GET',))
 def logout():
+    message = None
+
+    if session.get('user', None):
+        message = 'You have been logged out!'
+
     session.clear()
-    return redirect(url_for('auth.login'))
+    
+    if message:
+        flash(message, 'info')
+    
+    return redirect(url_for('home.index'))
