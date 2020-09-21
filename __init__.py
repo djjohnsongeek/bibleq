@@ -30,8 +30,8 @@ def create_app(test_config=None):
     from blueprints import auth
     app.register_blueprint(auth.blue_print)
 
-    from blueprints import index
-    app.register_blueprint(index.blue_print)
+    from blueprints import home
+    app.register_blueprint(home.blue_print)
 
     from blueprints import questions
     app.register_blueprint(questions.blue_print)
