@@ -2,7 +2,7 @@ from flask import redirect, url_for, flash
 
 class Util():
 
-    @staticmethod # TODO add tests
+    @staticmethod
     def contains_upper(string: str) -> bool:
 
         if type(string) != str:
@@ -14,7 +14,7 @@ class Util():
 
         return False
 
-    @staticmethod # TODO add tests
+    @staticmethod
     def contains_lower(string: str) -> bool:
 
         for char in string:
@@ -23,7 +23,7 @@ class Util():
 
         return False
 
-    @staticmethod # TODO add tests
+    @staticmethod
     def contains_num(string: str) -> bool:
 
         if type(string) != str:
@@ -36,7 +36,7 @@ class Util():
         return False
 
 
-    @staticmethod # TODO add tests
+    @staticmethod
     def authenticate(session, level):
         user = session.get('user', None)
 
