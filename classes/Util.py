@@ -1,5 +1,3 @@
-from flask import redirect, url_for, flash
-
 class Util():
 
     @staticmethod
@@ -34,7 +32,6 @@ class Util():
                 return True
 
         return False
-
 
     @staticmethod
     def authenticate(session, level):

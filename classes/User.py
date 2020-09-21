@@ -1,5 +1,4 @@
 import re
-import sys
 
 from flask import current_app
 from werkzeug.security import generate_password_hash
@@ -12,7 +11,7 @@ class User():
     def __init__(self, db, user_params):
         self.db = db
         self.errors = None
-        
+
         if not user_params.get('user_id', None):
             self.errors = self.validate(user_params)
 
@@ -42,7 +41,7 @@ class User():
             self.first_name,
             self.last_name,
             self.email,
-            self.password, 
+            self.password,
             self.question_count,
             self.answer_count,
             self.account_level,)
@@ -81,7 +80,7 @@ class User():
     @staticmethod
     def get_user_info(db, user_id=None, email=None):
         cur = db.conn.cursor()
-        
+
         sql = 'SELECT * FROM users WHERE '
 
         if user_id:
@@ -96,7 +95,7 @@ class User():
         cur.execute(sql, (value,))
         result = cur.fetchone()
         cur.close()
-        
+
         return result
 
     @staticmethod

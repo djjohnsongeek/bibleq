@@ -24,7 +24,7 @@ class TestUtilClass(unittest.TestCase):
     def test_contains_num(self):
         with self.assertRaises(TypeError):
             Util.contains_num(1)
-    
+
         self.assertTrue(Util.contains_num('aa!@##aaA1'))
         self.assertTrue(Util.contains_num('7AsdkfdlkjfA'))
         self.assertFalse(Util.contains_num('dafPASLKJ!)(#*$)'))

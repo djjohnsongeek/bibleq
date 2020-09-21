@@ -6,10 +6,9 @@ from flask import (
     request,
     session,
     url_for,
-    g, current_app
+    current_app
 )
 
-from classes.Question import Question
 from classes.Util import Util
 
 blue_print = Blueprint('questions', __name__, url_prefix='/questions')

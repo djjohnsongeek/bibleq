@@ -1,7 +1,6 @@
 import unittest
-import sys
 
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import check_password_hash
 from bibleq import create_app
 from classes.Database import db
 from classes.User import User
@@ -283,7 +282,7 @@ class TestUserClass(unittest.TestCase):
             self.assertListEqual(
                 errors,
                 ['Password cannot be shorter then ' +
-                f'10 characters or longer then {pw_limit}.']
+                 f'10 characters or longer then {pw_limit}.']
             )
 
             errors = user._validate_password(
@@ -293,7 +292,7 @@ class TestUserClass(unittest.TestCase):
             self.assertListEqual(
                 errors,
                 ['Password cannot be shorter then ' +
-                f'10 characters or longer then {pw_limit}.']
+                 f'10 characters or longer then {pw_limit}.']
             )
 
             errors = user._validate_password(
@@ -349,7 +348,6 @@ class TestUserClass(unittest.TestCase):
                 ['User with this email already exists.']
             )
 
-            
             errors = user.validate(self.user_info3)
             self.assertListEqual(
                 errors,
@@ -373,7 +371,7 @@ class TestUserClass(unittest.TestCase):
 
             self.assertEqual(user_info['first_name'], user1.first_name)
             self.assertEqual(user_info['last_name'], user1.last_name)
-            
+
             # instatiate user from info
             user_obj = User(self.db, user_info)
             self.assertIsInstance(user_obj, User)
@@ -385,7 +383,7 @@ class TestUserClass(unittest.TestCase):
             # fail to instantiate user from empty info
             with self.assertRaises(Exception):
                 user_obj = User(self.db, user_info)
-        
+
             # retrieve user info by email
             user_info = User.get_user_info(
                 self.db, None, self.user_info1['email']

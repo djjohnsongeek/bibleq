@@ -1,4 +1,3 @@
-from pprint import pprint
 from flask import (
     Blueprint,
     flash,
@@ -7,7 +6,6 @@ from flask import (
     request,
     session,
     url_for,
-    current_app,
     g,
 )
 
@@ -49,7 +47,7 @@ def login():
             flash('Login failed.', 'error')
         else:
             auth = security.check_password_hash(
-                user_info['password'], 
+                user_info['password'],
                 password
             )
 
@@ -63,7 +61,7 @@ def login():
                 return redirect(url_for('home.index'))
             else:
                 flash('Invalid Password.', 'error')
-    
+
     # display login form
     return render_template('auth/login.html')
 
@@ -76,8 +74,8 @@ def logout():
         message = 'You have been logged out!'
 
     session.clear()
-    
+
     if message:
         flash(message, 'info')
-    
+
     return redirect(url_for('home.index'))

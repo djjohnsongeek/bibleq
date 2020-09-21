@@ -21,7 +21,6 @@ class TestHomeRoutes(unittest.TestCase):
         # setup database
         cls.db.init(cls.app.config)
         cls.db.execute_sql_file(cls.db.schema_path)
-        
 
     def test_index(self):
         response = self.client.get('/')
