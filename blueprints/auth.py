@@ -24,12 +24,11 @@ def register():
 
         if not new_user.errors:
             flash('Account created. Please login.', 'info')
+            return redirect(url_for('auth.login'))
         else:
             flash('Account creation failed.', 'info')
             for error_msg in new_user.errors:
                 flash(error_msg, 'error')
-
-        return redirect(url_for('auth.login'))
 
     # display register form
     return render_template('auth/register.html')
