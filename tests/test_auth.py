@@ -22,6 +22,9 @@ class TestAuthRoute(unittest.TestCase):
         cls.db.init(cls.app.config)
         cls.db.execute_sql_file(cls.db.schema_path)
 
+        # set domain name
+        cls.domain_name = cls.app.config['APP_URL']
+
     def setUp(self):
         self.db.connect()
 
@@ -34,8 +37,10 @@ class TestAuthRoute(unittest.TestCase):
         confirm_pw_input = (b'<input type="password" name="confirm_pw" '
                             b'placeholder="Confirm Password"><br/>')
         page_header = b'<h1>Create Account</h1'
-        
+        # page_url = self.domain_name + response.headers.get('Location')
+
         self.assertEqual(200, response.status_code)
+        # self.assertEqual(page_url, self.domain_name + '/auth/register')
         self.assertIn(confirm_pw_input, response.data)
         self.assertIn(page_header, response.data)
 
@@ -52,8 +57,10 @@ class TestAuthRoute(unittest.TestCase):
             },
             follow_redirects=True
         )
+        # page_url = self.domain_name + response.headers.get('Location')
 
         self.assertEqual(200, response.status_code)
+        # self.assertEqual(page_url, self.domain_name + '/auth/login')
         self.assertIn(b'<h1>Login</h1>', response.data)
         self.assertIn(b'Account created. Please login.', response.data)
 
