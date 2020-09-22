@@ -79,6 +79,10 @@ class User():
 
     @staticmethod
     def get_user_info(db, user_id=None, email=None):
+        # test_auth_post fails w/o this
+        if db.conn is None:
+            db.connect()
+
         cur = db.conn.cursor()
 
         sql = 'SELECT * FROM users WHERE '
