@@ -154,20 +154,19 @@ class User():
             )
         )
 
+        q_count = user_info.get('question_count', 0)
         errors.extend(
-            self._validate_integer(user_info['question_count'])
+            self._validate_integer(q_count)
         )
 
+        a_count = user_info.get('answer_count', 0)
         errors.extend(
-            self._validate_integer(user_info['answer_count'])
+            self._validate_integer(a_count)
         )
 
+        level = user_info.get('account_level', 1)
         errors.extend(
-            self._validate_integer(
-                user_info['account_level'],
-                start=1,
-                end=3
-            )
+            self._validate_integer(level, start=1, end=3)
         )
 
         return errors
