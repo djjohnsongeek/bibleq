@@ -20,7 +20,7 @@ class User():
             self.first_name = user_params['first_name']
             self.last_name = user_params['last_name']
             self.email = user_params['email']
-            self.account_level = user_params['account_level']
+            self.account_level = user_params.get('account_level', 1)
             self.question_count = user_params.get('question_count', 0)
             self.answer_count = user_params.get('answer_count', 0)
             self.password = user_params['password']
