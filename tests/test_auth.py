@@ -21,12 +21,8 @@ class TestAuthRoute(unittest.TestCase):
         })
         cls.client = cls.app.test_client()
 
-        # setup database
         cls.db.init(cls.app.config)
         cls.db.execute_sql_file(cls.db.schema_path)
-
-        # set domain name
-        cls.domain_name = cls.app.config['APP_URL']
 
         # create a test user
         with cls.app.app_context():
