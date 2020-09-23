@@ -36,9 +36,6 @@ class TestAuthRoute(unittest.TestCase):
                 'email': 'test@gmail.com',
                 'password': 'TestPassword123',
                 'confirm_pw': 'TestPassword123',
-                'account_level': cls.app.config['USER_ACCNT'],
-                'question_count': 0,
-                'answer_count': 0,
             })
 
     # helper methods
@@ -114,7 +111,7 @@ class TestAuthRoute(unittest.TestCase):
         # remove all users
         self.db.trucate_table('users')
 
-    def test_login(self):
+    def test_get_login(self):
         # GET Request
         response = self.client.get('/auth/login')
         self.assertEqual(200, response.status_code)
@@ -123,9 +120,8 @@ class TestAuthRoute(unittest.TestCase):
             response.data
         )
 
-        # POST Request
-
-        # no one logged in
+    def test_post_login(self):
+        # no one is logged in
         with self.client:
             self.client.get('/')
             self.assertIsNone(session.get('user', None))
