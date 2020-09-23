@@ -6,7 +6,7 @@ from bibleq import create_app
 from classes.Database import db
 from classes.User import User
 
-# TODO check url with response.headers['Location']
+
 class TestAuthRoute(unittest.TestCase):
 
     @classmethod
@@ -41,7 +41,7 @@ class TestAuthRoute(unittest.TestCase):
     # helper methods
     def login(self, email, password):
         return self.client.post(
-            "/auth/login", data = {
+            "/auth/login", data={
                 "email": email,
                 "password": password
             }
@@ -50,7 +50,7 @@ class TestAuthRoute(unittest.TestCase):
     def register_test_user(self):
         return self.client.post(
             '/auth/register',
-            data = {
+            data={
                 'first_name': 'first2',
                 'last_name': 'last2',
                 'email': 'test2@gmail.com',
@@ -92,14 +92,14 @@ class TestAuthRoute(unittest.TestCase):
         # failed user creation
         response = self.client.post(
             '/auth/register',
-            data = {
+            data={
                 'first_name': 'first',
                 'last_name': 'last',
                 'email': 'test2@gmail.com',
                 'password': 'TestPassword234',
                 'confirm_pw': 'TestPassword123',
             },
-            follow_redirects = True
+            follow_redirects=True
         )
 
         self.assertEqual(200, response.status_code)

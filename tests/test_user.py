@@ -146,11 +146,12 @@ class TestUserClass(unittest.TestCase):
 
     def test_user_get_all(self):
         with self.app.app_context():
-            user = User(self.db, self.user_info1)
-            user2 = User(self.db, self.user_info2)
+            # create users
+            User(self.db, self.user_info1)
+            User(self.db, self.user_info2)
 
-            results = user.get_all(self.db)
-
+            # validate their existance
+            results = User.get_all(self.db)
             self.assertEqual(len(results), 2)
 
     def test_parse_user_info(self):
@@ -364,7 +365,7 @@ class TestUserClass(unittest.TestCase):
 
             # create users for testing
             user1 = User(self.db, self.user_info1)
-            user2 = User(self.db, self.user_info2)
+            User(self.db, self.user_info2)
 
             # retrieve user info by id
             user_info = User.get_user_info(self.db, 1)
