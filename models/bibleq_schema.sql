@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3308
--- Generation Time: Sep 15, 2020 at 01:25 AM
+-- Generation Time: Sep 24, 2020 at 02:47 AM
 -- Server version: 8.0.18
 -- PHP Version: 7.3.12
 
@@ -19,7 +19,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `bibleq_test`
+-- Database: `bibleq`
 --
 
 -- --------------------------------------------------------
@@ -30,7 +30,7 @@ SET time_zone = "+00:00";
 
 DROP TABLE IF EXISTS `account_types`;
 CREATE TABLE IF NOT EXISTS `account_types` (
-  `level_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `level_id` int(10) UNSIGNED NOT NULL,
   `name` char(8) NOT NULL,
   `description` tinytext NOT NULL,
   PRIMARY KEY (`level_id`)
@@ -90,7 +90,7 @@ CREATE TABLE IF NOT EXISTS `comments` (
 
 DROP TABLE IF EXISTS `emails`;
 CREATE TABLE IF NOT EXISTS `emails` (
-  `email_id` tinyint(1) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `email_id` tinyint(1) UNSIGNED NOT NULL,
   `subject` tinytext NOT NULL,
   `body` text NOT NULL,
   `description` tinytext NOT NULL,
@@ -124,9 +124,11 @@ CREATE TABLE IF NOT EXISTS `questions` (
   `original_poster_id` int(10) UNSIGNED NOT NULL,
   `writer_id` int(10) UNSIGNED DEFAULT NULL,
   `answer_id` int(10) UNSIGNED DEFAULT NULL,
+  `title` char(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `body` text NOT NULL,
   `unfit_flag_count` tinyint(3) UNSIGNED NOT NULL DEFAULT '0',
-  PRIMARY KEY (`question_id`)
+  PRIMARY KEY (`question_id`),
+  UNIQUE KEY `question_title` (`title`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
