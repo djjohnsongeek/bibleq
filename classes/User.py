@@ -91,9 +91,9 @@ class User():
         arg_type = type(key)
 
         if arg_type == int:
-            sql = sql + 'user_id=%s;'
+            sql = sql + 'user_id = %s;'
         elif arg_type == str:
-            sql = sql + 'email=%s;'
+            sql = sql + 'email = %s;'
         else:
             return None
 
