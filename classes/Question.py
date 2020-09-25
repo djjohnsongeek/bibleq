@@ -43,11 +43,19 @@ class Question():
 
         cur.close()
 
-    def get_question_by_title(self, title):
-        sql = 'SELECT * FROM questions WHERE title = %s'
+    def get_question_info(self, key):
+        key_type = type(key)
+        sql = 'SELECT * FROM questions WHERE '
+
+        if key_type == int:
+            sql = sql + 'question_id = %s;'
+        elif key_type == str:
+            sql = sql + 'title = %s;'
+        else: return None
+        
         cur = self.db.conn.cursor()
 
-        cur.execute(sql, (title, ))
+        cur.execute(sql, (key, ))
         question_info = cur.fetchone()
         cur.close()
 
@@ -80,7 +88,7 @@ class Question():
         if len(title) > current_app.config['Q_TILE_MAX_LEN']:
             errors.append('The question\'s title must be less then 65 characters.')
 
-        question_info = self.get_question_by_title(title)
+        question_info = self.get_question_info(title)
         if question_info:
             errors.append('This question already exists')
 
