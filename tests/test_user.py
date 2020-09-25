@@ -2,24 +2,18 @@ import unittest
 
 from werkzeug.security import check_password_hash
 from bibleq import create_app
-from classes.Database import db
 from classes.User import User
+from tests import db, app, client
 
 
 class TestUserClass(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        # setup app and test client
         cls.db = db
-        cls.app = create_app({
-            'TESTING': True,
-            'MYSQL_DB': 'bibleq_test',
-            'TEST_SQL_PATH': r'C:\Users\Johnson\Projects\flask-'
-                             r'app\bibleq\tests\temp\test.sql',
-        })
-
-        cls.db.init(cls.app.config)
-        cls.db.execute_sql_file(cls.db.schema_path)
+        cls.app = app
+        cls.client = client
 
     def tearDown(self):
         self.db.trucate_table('users')
