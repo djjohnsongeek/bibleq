@@ -78,23 +78,24 @@ class User():
         return result
 
     @staticmethod
-    def get_user_info(db, user_id=None, email=None):
+    def get_user_info(db, id_or_email):
+
         # test_auth_post fails w/o this
         if db.conn is None:
             db.connect()
 
         cur = db.conn.cursor()
-
         sql = 'SELECT * FROM users WHERE '
 
-        if user_id:
+        arg_type = type(id_or_email)
+
+        if arg_type == int:
             sql = sql + 'user_id=%s;'
-            value = user_id
-        elif email:
+        elif arg_type == str:
             sql = sql + 'email=%s;'
-            value = email
-        else:
-            return None
+        else: return None
+
+        value = id_or_email
 
         cur.execute(sql, (value,))
         result = cur.fetchone()
@@ -198,7 +199,7 @@ class User():
         if len(email) > 64:
             errors.append('Email address is too long.')
 
-        user_info = self.get_user_info(self.db, None, email)
+        user_info = self.get_user_info(self.db, email)
         if user_info:
             errors.append('User with this email already exists.')
 
