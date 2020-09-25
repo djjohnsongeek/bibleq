@@ -78,7 +78,8 @@ class User():
         return result
 
     @staticmethod
-    def get_user_info(db, id_or_email):
+    def get_user_info(db, key):
+        ''' key can be either int or str (user_id or email) '''
 
         # test_auth_post fails w/o this
         if db.conn is None:
@@ -87,7 +88,7 @@ class User():
         cur = db.conn.cursor()
         sql = 'SELECT * FROM users WHERE '
 
-        arg_type = type(id_or_email)
+        arg_type = type(key)
 
         if arg_type == int:
             sql = sql + 'user_id=%s;'
@@ -95,7 +96,7 @@ class User():
             sql = sql + 'email=%s;'
         else: return None
 
-        value = id_or_email
+        value = key
 
         cur.execute(sql, (value,))
         result = cur.fetchone()

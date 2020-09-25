@@ -387,7 +387,7 @@ class TestUserClass(unittest.TestCase):
 
             # retrieve user info by email
             user_info = User.get_user_info(
-                self.db, None, self.user_info1['email']
+                self.db, self.user_info1['email']
             )
             self.assertEqual(user_info['email'], user1.email)
             self.assertEqual(user_info['first_name'], user1.first_name)
@@ -399,9 +399,6 @@ class TestUserClass(unittest.TestCase):
 
             # get non existant user+info by email
             user_info = User.get_user_info(
-                self.db, None, self.user_info3['email']
+                self.db, self.user_info3['email']
             )
-            self.assertIsNone(user_info)
-
-            user_info = User.get_user_info(db)
             self.assertIsNone(user_info)

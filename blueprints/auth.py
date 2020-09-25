@@ -40,7 +40,7 @@ def login():
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
-        user_info = User.get_user_info(g.db, None, email)
+        user_info = User.get_user_info(g.db, email)
 
         if user_info is None:
             flash('Login failed.', 'error')

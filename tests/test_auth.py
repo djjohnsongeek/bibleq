@@ -80,7 +80,7 @@ class TestAuthRoute(unittest.TestCase):
         self.assertIn(b'<h1>Login</h1>', response.data)
         self.assertIn(b'Account created. Please login.', response.data)
 
-        user_info = User.get_user_info(self.db, None, 'test2@gmail.com')
+        user_info = User.get_user_info(self.db, 'test2@gmail.com')
 
         self.assertEqual('first2', user_info['first_name'])
         self.assertEqual('last2', user_info['last_name'])
