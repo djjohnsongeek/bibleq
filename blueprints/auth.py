@@ -24,12 +24,11 @@ def register():
 
         if not new_user.errors:
             flash('Account created. Please login.', 'info')
+            return redirect(url_for('auth.login'))
         else:
             flash('Account creation failed.', 'info')
             for error_msg in new_user.errors:
                 flash(error_msg, 'error')
-
-        return redirect(url_for('auth.login'))
 
     # display register form
     return render_template('auth/register.html')
@@ -41,7 +40,7 @@ def login():
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
-        user_info = User.get_user_info(g.db, None, email)
+        user_info = User.get_user_info(g.db, email)
 
         if user_info is None:
             flash('Login failed.', 'error')

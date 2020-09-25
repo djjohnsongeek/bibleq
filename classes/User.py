@@ -20,7 +20,7 @@ class User():
             self.first_name = user_params['first_name']
             self.last_name = user_params['last_name']
             self.email = user_params['email']
-            self.account_level = user_params['account_level']
+            self.account_level = user_params.get('account_level', 1)
             self.question_count = user_params.get('question_count', 0)
             self.answer_count = user_params.get('answer_count', 0)
             self.password = user_params['password']
@@ -78,19 +78,26 @@ class User():
         return result
 
     @staticmethod
-    def get_user_info(db, user_id=None, email=None):
-        cur = db.conn.cursor()
+    def get_user_info(db, key):
+        ''' key can be either int or str (user_id or email) '''
 
+        # test_auth_post fails w/o this
+        if db.conn is None:
+            db.connect()
+
+        cur = db.conn.cursor()
         sql = 'SELECT * FROM users WHERE '
 
-        if user_id:
-            sql = sql + 'user_id=%s;'
-            value = user_id
-        elif email:
-            sql = sql + 'email=%s;'
-            value = email
+        arg_type = type(key)
+
+        if arg_type == int:
+            sql = sql + 'user_id = %s;'
+        elif arg_type == str:
+            sql = sql + 'email = %s;'
         else:
             return None
+
+        value = key
 
         cur.execute(sql, (value,))
         result = cur.fetchone()
@@ -150,20 +157,19 @@ class User():
             )
         )
 
+        q_count = user_info.get('question_count', 0)
         errors.extend(
-            self._validate_integer(user_info['question_count'])
+            self._validate_integer(q_count)
         )
 
+        a_count = user_info.get('answer_count', 0)
         errors.extend(
-            self._validate_integer(user_info['answer_count'])
+            self._validate_integer(a_count)
         )
 
+        level = user_info.get('account_level', 1)
         errors.extend(
-            self._validate_integer(
-                user_info['account_level'],
-                start=1,
-                end=3
-            )
+            self._validate_integer(level, start=1, end=3)
         )
 
         return errors
@@ -195,7 +201,7 @@ class User():
         if len(email) > 64:
             errors.append('Email address is too long.')
 
-        user_info = self.get_user_info(self.db, None, email)
+        user_info = self.get_user_info(self.db, email)
         if user_info:
             errors.append('User with this email already exists.')
 

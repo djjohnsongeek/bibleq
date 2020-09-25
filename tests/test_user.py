@@ -1,25 +1,19 @@
 import unittest
 
 from werkzeug.security import check_password_hash
-from bibleq import create_app
-from classes.Database import db
+
 from classes.User import User
+from tests import db, app, client
 
 
 class TestUserClass(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        # setup app and test client
         cls.db = db
-        cls.app = create_app({
-            'TESTING': True,
-            'MYSQL_DB': 'bibleq_test',
-            'TEST_SQL_PATH': r'C:\Users\Johnson\Projects\flask-'
-                             r'app\bibleq\tests\temp\test.sql',
-        })
-
-        cls.db.init(cls.app.config)
-        cls.db.execute_sql_file(cls.db.schema_path)
+        cls.app = app
+        cls.client = client
 
     def tearDown(self):
         self.db.trucate_table('users')
@@ -146,11 +140,12 @@ class TestUserClass(unittest.TestCase):
 
     def test_user_get_all(self):
         with self.app.app_context():
-            user = User(self.db, self.user_info1)
-            user2 = User(self.db, self.user_info2)
+            # create users
+            User(self.db, self.user_info1)
+            User(self.db, self.user_info2)
 
-            results = user.get_all(self.db)
-
+            # validate their existance
+            results = User.get_all(self.db)
             self.assertEqual(len(results), 2)
 
     def test_parse_user_info(self):
@@ -364,7 +359,7 @@ class TestUserClass(unittest.TestCase):
 
             # create users for testing
             user1 = User(self.db, self.user_info1)
-            user2 = User(self.db, self.user_info2)
+            User(self.db, self.user_info2)
 
             # retrieve user info by id
             user_info = User.get_user_info(self.db, 1)
@@ -386,7 +381,7 @@ class TestUserClass(unittest.TestCase):
 
             # retrieve user info by email
             user_info = User.get_user_info(
-                self.db, None, self.user_info1['email']
+                self.db, self.user_info1['email']
             )
             self.assertEqual(user_info['email'], user1.email)
             self.assertEqual(user_info['first_name'], user1.first_name)
@@ -398,9 +393,6 @@ class TestUserClass(unittest.TestCase):
 
             # get non existant user+info by email
             user_info = User.get_user_info(
-                self.db, None, self.user_info3['email']
+                self.db, self.user_info3['email']
             )
-            self.assertIsNone(user_info)
-
-            user_info = User.get_user_info(db)
             self.assertIsNone(user_info)
