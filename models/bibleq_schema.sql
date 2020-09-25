@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3308
--- Generation Time: Sep 24, 2020 at 02:47 AM
+-- Generation Time: Sep 25, 2020 at 01:07 AM
 -- Server version: 8.0.18
 -- PHP Version: 7.3.12
 
@@ -90,7 +90,7 @@ CREATE TABLE IF NOT EXISTS `comments` (
 
 DROP TABLE IF EXISTS `emails`;
 CREATE TABLE IF NOT EXISTS `emails` (
-  `email_id` tinyint(1) UNSIGNED NOT NULL,
+  `email_id` tinyint(1) UNSIGNED NOT NULL AUTO_INCREMENT,
   `subject` tinytext NOT NULL,
   `body` text NOT NULL,
   `description` tinytext NOT NULL,
