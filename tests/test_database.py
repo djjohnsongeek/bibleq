@@ -3,7 +3,6 @@ import os
 
 import pymysql
 
-from bibleq import create_app
 from classes.Database import DatabaseTransitionError
 from tests import db, app, client
 

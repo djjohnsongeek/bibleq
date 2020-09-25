@@ -1,7 +1,7 @@
 import unittest
 
 from werkzeug.security import check_password_hash
-from bibleq import create_app
+
 from classes.User import User
 from tests import db, app, client
 

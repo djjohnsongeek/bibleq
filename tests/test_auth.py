@@ -2,9 +2,9 @@ import unittest
 
 from flask import session
 
-from bibleq import create_app
 from classes.User import User
 from tests import db, app, client
+
 
 class TestAuthRoute(unittest.TestCase):
 

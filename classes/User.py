@@ -94,7 +94,8 @@ class User():
             sql = sql + 'user_id=%s;'
         elif arg_type == str:
             sql = sql + 'email=%s;'
-        else: return None
+        else:
+            return None
 
         value = key
 

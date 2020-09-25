@@ -1,6 +1,7 @@
 from flask import current_app
 from classes.User import User
 
+
 class Question():
 
     def __init__(self, db, data):
@@ -51,8 +52,9 @@ class Question():
             sql = sql + 'question_id = %s;'
         elif key_type == str:
             sql = sql + 'title = %s;'
-        else: return None
-        
+        else:
+            return None
+
         cur = self.db.conn.cursor()
 
         cur.execute(sql, (key, ))
@@ -60,7 +62,6 @@ class Question():
         cur.close()
 
         return question_info
-
 
     def _validate(self, question_data):
         errors = []
@@ -84,9 +85,10 @@ class Question():
 
         if not title:
             errors.append('The question\'s title cannot be blank.')
-
-        if len(title) > current_app.config['Q_TILE_MAX_LEN']:
-            errors.append('The question\'s title must be less then 65 characters.')
+        elif len(title) > current_app.config['Q_TILE_MAX_LEN']:
+            errors.append(
+                'The question\'s title must be less then 65 characters.'
+            )
 
         question_info = self.get_question_info(title)
         if question_info:
@@ -102,4 +104,3 @@ class Question():
             errors.append('Invalid user, new question was not created.')
 
         return errors
-

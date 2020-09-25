@@ -5,7 +5,7 @@ app = create_app({
     'TESTING': True,
     'MYSQL_DB': 'bibleq_test',
     'TEST_SQL_PATH': r'C:\Users\Johnson\Projects\flask-'
-                        r'app\bibleq\tests\temp\test.sql',
+                     + r'app\bibleq\tests\temp\test.sql',
 })
 client = app.test_client()
 

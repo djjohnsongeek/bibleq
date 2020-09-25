@@ -1,6 +1,5 @@
 import unittest
 
-from bibleq import create_app
 from tests import db, app, client
 
 
