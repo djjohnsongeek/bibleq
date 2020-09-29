@@ -31,8 +31,19 @@ class TestQuestion(unittest.TestCase):
             db.close()
 
     def setUp(self):
+        question_data = {
+            'title': 'Test Question Title',
+            'body': 'Testing Body Text',
+            'poster_id': 1,
+        }
+
         with app.app_context():
             db.connect()
+
+            self.new_question = Question(
+                db,
+                question_data
+            )
 
     def tearDown(self):
         with app.app_context():
@@ -40,10 +51,9 @@ class TestQuestion(unittest.TestCase):
             db.close()
 
     def test_question_init(self):
-        # also tests create
         question_data = {
-            'title': 'Test Question Title',
-            'body': 'Testing Body Text',
+            'title': 'Test Question Title2',
+            'body': 'Testing Body Text2',
             'poster_id': 1,
         }
 
@@ -52,7 +62,7 @@ class TestQuestion(unittest.TestCase):
             new_question = Question(db, question_data)
 
         self.assertEqual(new_question.errors, [])
-        self.assertEqual(new_question.id, 1)
+        self.assertEqual(new_question.id, 2)
         self.assertEqual(new_question.title, question_data['title'])
         self.assertEqual(new_question.body, question_data['body'])
         self.assertEqual(new_question.poster_id, 1)
@@ -62,74 +72,93 @@ class TestQuestion(unittest.TestCase):
 
         # test init created questiong row in db
         with app.app_context():
-            question_info = Question.get_question_info(db, 1)
+            question_info = Question.get_question_info(db, 2)
 
+        self.assertEqual(question_info['question_id'], 2)
         self.assertEqual(question_info['title'], question_data['title'])
         self.assertEqual(question_info['body'], question_data['body'])
         self.assertEqual(
             question_info['original_poster_id'],
             question_data['poster_id']
         )
-
-        self.assertEqual(question_info['question_id'], 1)
-
-        # error when question already in db
-        question_data['title'] = 'Test Question Title'
-        with app.app_context():
-            new_question = Question(db, question_data)
-
-        self.assertEqual(
-            new_question.errors,
-            ['This question already exists']
-        )
-        with self.assertRaises(AttributeError):
-            new_question.title
-
-        # errors when q title is too long
-        question_data['title'] = 128 * 'TooLong'
-        with app.app_context():
-            new_question = Question(db, question_data)
-
-        self.assertEqual(
-            new_question.errors,
-            ['The question\'s title must '
-             'be less then 65 characters.']
-        )
-
-        # errors when title, body are blank, user is nonexistant
-        question_data['title'] = ''
-        question_data['body'] = ''
-        question_data['poster_id'] = 5
-        with app.app_context():
-            new_question = Question(db, question_data)
-
-        self.assertEqual(
-            new_question.errors,
-            [
-                'The question\'s title cannot be blank.',
-                'The question\'s body cannot be blank.',
-                'Invalid user, new question was not created.',
-            ]
-        )
         
     def test_get_question_info(self):
         with app.app_context():
-            question_info = Question.get_question_info(db, 1)
+            # no info exists
+            question_info = Question.get_question_info(db, 2)
             self.assertIsNone(question_info)
             
             question_info = Question.get_question_info(db, 'Test Question?')
             self.assertIsNone(question_info)
 
-            Question(db,
-                {
-                    'title': 'Test Question?',
-                    'body': 'Test Body',
-                    'poster_id': 1,
-                }
-            )
-
-            question_info = Question.get_question_info(db, 'Test Question?')
+            # info exists
+            question_info = Question.get_question_info(db, 'Test Question Title')
             self.assertTrue(question_info)
 
             question_info = Question.get_question_info(db, 1)
             self.assertTrue(question_info)
+
+    def test_validate(self):
+        with app.app_context():
+            # no errors
+            question_data = {
+                'title': 'Test Question Title2',
+                'body': 'Testing Body Text2',
+                'poster_id': 1,
+            }
+            errors = self.new_question._validate(question_data)
+            self.assertEqual(errors, [])
+
+            # error are returned
+            question_data['title'] = 'Test Question Title'
+            errors = self.new_question._validate(question_data)
+            self.assertTrue(errors)
+
+    def test_validate_poster(self):
+        with app.app_context():
+
+            errors = self.new_question._validate_poster(1)
+            self.assertEqual(errors, [])
+
+            errors = self.new_question._validate_poster(5)
+            self.assertEqual(
+                errors,
+                ['Invalid user, new question was not created.']
+            )
+    
+    def test_validate_title(self):
+        with app.app_context():
+            # no errors
+            errors = self.new_question._validate_title('Question?')
+            self.assertEqual(errors, [])
+
+            # question title exists
+            errors = self.new_question._validate_title('Test Question Title')
+            self.assertEqual(
+                errors,
+                ['This question already exists']
+            )
+
+            # title is too long
+            errors = self.new_question._validate_title(128 * 'TooLong')
+            self.assertEqual(
+                errors,
+                ['The question\'s title must '
+                'be less then 65 characters.']
+            )
+
+            # title is blank
+            errors = self.new_question._validate_title('')
+            self.assertEqual(
+                errors,
+                ['The question\'s title cannot be blank.']
+            )
+
+    def test_validate_body(self):
+        with app.app_context():
+
+            errors = self.new_question._validate_body('Body')
+            self.assertEqual(errors, [])
+            
+            errors = self.new_question._validate_body('')
+            self.assertEqual(errors, ['The question\'s body cannot be blank.'])
