@@ -40,6 +40,7 @@ class TestQuestion(unittest.TestCase):
             db.close()
 
     def test_question_init(self):
+        # also tests create
         question_data = {
             'title': 'Test Question Title',
             'body': 'Testing Body Text',
@@ -81,7 +82,7 @@ class TestQuestion(unittest.TestCase):
             new_question.errors,
             ['This question already exists']
         )
-        with self.assertRaises(Exception):
+        with self.assertRaises(AttributeError):
             new_question.title
 
         # errors when q title is too long
@@ -111,3 +112,24 @@ class TestQuestion(unittest.TestCase):
             ]
         )
         
+    def test_get_question_info(self):
+        with app.app_context():
+            question_info = Question.get_question_info(db, 1)
+            self.assertIsNone(question_info)
+            
+            question_info = Question.get_question_info(db, 'Test Question?')
+            self.assertIsNone(question_info)
+
+            Question(db,
+                {
+                    'title': 'Test Question?',
+                    'body': 'Test Body',
+                    'poster_id': 1,
+                }
+            )
+
+            question_info = Question.get_question_info(db, 'Test Question?')
+            self.assertTrue(question_info)
+
+            question_info = Question.get_question_info(db, 1)
+            self.assertTrue(question_info)
