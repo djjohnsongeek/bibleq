@@ -9,15 +9,15 @@ class Question():
 
         self.errors = self._validate(data)
 
-        self.question_id = None
-        self.poster_id = data['poster_id']
-        self.writer_id = data.get('writer_id')
-        self.answer_id = data.get('answer_id')
-        self.title = data['title']
-        self.body = data['body']
-        self.unfit_flag_count = data.get('unfit_flag_count', 0)
-
         if not self.errors:
+            self.id = None
+            self.poster_id = data['poster_id']
+            self.writer_id = data.get('writer_id')
+            self.answer_id = data.get('answer_id')
+            self.title = data['title']
+            self.body = data['body']
+            self.unfit_flag_count = data.get('unfit_flag_count', 0)
+        
             self.create()
 
     def create(self):
@@ -40,11 +40,12 @@ class Question():
         )
 
         self.db.conn.commit()
-        self.question_id = self.db.get_last_insert_id()
+        self.id = self.db.get_last_insert_id()
 
         cur.close()
 
-    def get_question_info(self, key):
+    @staticmethod
+    def get_question_info(db, key):
         key_type = type(key)
         sql = 'SELECT * FROM questions WHERE '
 
@@ -55,7 +56,7 @@ class Question():
         else:
             return None
 
-        cur = self.db.conn.cursor()
+        cur = db.conn.cursor()
 
         cur.execute(sql, (key, ))
         question_info = cur.fetchone()
@@ -90,7 +91,7 @@ class Question():
                 'The question\'s title must be less then 65 characters.'
             )
 
-        question_info = self.get_question_info(title)
+        question_info = self.get_question_info(self.db, title)
         if question_info:
             errors.append('This question already exists')
 
