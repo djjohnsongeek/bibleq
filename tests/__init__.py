@@ -1,6 +1,15 @@
 from bibleq import create_app
 from classes.Database import db
 
+# helper functions
+def login(email, password):
+    return client.post(
+        "/auth/login", data={
+            "email": email,
+            "password": password
+        }
+    )
+
 app = create_app({
     'TESTING': True,
     'MYSQL_DB': 'bibleq_test',
